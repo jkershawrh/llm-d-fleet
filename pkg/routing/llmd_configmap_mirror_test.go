@@ -20,16 +20,17 @@ func TestKubernetesConfigMapMirrorPublishesUpdatesAndReloadsToken(t *testing.T) 
 	var mu sync.Mutex
 	version, contents := "1", "first"
 	requests := 0
+	sawRotatedToken := false
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mu.Lock()
 		defer mu.Unlock()
 		requests++
-		wantToken := "Bearer first"
-		if version == "2" {
-			wantToken = "Bearer second"
+		gotToken := r.Header.Get("Authorization")
+		if version == "1" && gotToken != "Bearer first" {
+			t.Errorf("authorization = %q, want %q", gotToken, "Bearer first")
 		}
-		if got := r.Header.Get("Authorization"); got != wantToken {
-			t.Errorf("authorization = %q, want %q", got, wantToken)
+		if version == "2" && gotToken == "Bearer second" {
+			sawRotatedToken = true
 		}
 		fmt.Fprintf(w, `{"metadata":{"resourceVersion":%q},"data":{"endpoints.json":%q}}`, version, contents)
 	}))
@@ -53,6 +54,16 @@ func TestKubernetesConfigMapMirrorPublishesUpdatesAndReloadsToken(t *testing.T) 
 	version, contents = "2", "second"
 	mu.Unlock()
 	waitForFileContents(t, filepath.Join(directory, "endpoints.json"), "second")
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		mu.Lock()
+		observed := sawRotatedToken
+		mu.Unlock()
+		if observed {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
 	cancel()
 	if err := <-done; err != nil {
 		t.Fatal(err)
@@ -61,6 +72,9 @@ func TestKubernetesConfigMapMirrorPublishesUpdatesAndReloadsToken(t *testing.T) 
 	defer mu.Unlock()
 	if requests < 2 {
 		t.Fatalf("requests = %d, want at least 2", requests)
+	}
+	if !sawRotatedToken {
+		t.Fatal("rotated bearer token was not observed")
 	}
 }
 
