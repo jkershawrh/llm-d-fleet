@@ -5,10 +5,10 @@ resources:
   - ../../base
   - pdb.yaml
 images:
-  - name: ghcr.io/llm-d/fleet-controller
+  - name: ghcr.io/jkershawrh/llm-d-fleet/fleet-controller
     newName: ghcr.io/OWNER/fleet-llm-d/fleet-controller
     newTag: VERSION
-  - name: ghcr.io/llm-d/fleet-agent
+  - name: ghcr.io/jkershawrh/llm-d-fleet/fleet-agent
     newName: ghcr.io/OWNER/fleet-llm-d/fleet-agent
     newTag: VERSION
 patches:

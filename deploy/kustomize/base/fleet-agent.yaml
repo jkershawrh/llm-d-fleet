@@ -45,7 +45,7 @@ spec:
       serviceAccountName: fleet-agent
       containers:
         - name: fleet-agent
-          image: ghcr.io/llm-d/fleet-agent:0.2.0
+          image: ghcr.io/jkershawrh/llm-d-fleet/fleet-agent:0.3.0
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsNonRoot: true

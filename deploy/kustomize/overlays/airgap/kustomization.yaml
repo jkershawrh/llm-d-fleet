@@ -11,12 +11,12 @@ resources:
 #
 # Default mirror: registry.local:5000/fleet-llm-d
 images:
-  - name: ghcr.io/llm-d/fleet-controller
+  - name: ghcr.io/jkershawrh/llm-d-fleet/fleet-controller
     newName: registry.local:5000/fleet-llm-d/fleet-controller
-    newTag: "0.2.0"
-  - name: ghcr.io/llm-d/fleet-agent
+    newTag: "0.3.0"
+  - name: ghcr.io/jkershawrh/llm-d-fleet/fleet-agent
     newName: registry.local:5000/fleet-llm-d/fleet-agent
-    newTag: "0.2.0"
+    newTag: "0.3.0"
   - name: postgres
     newName: registry.local:5000/fleet-llm-d/postgres
     newTag: "16"

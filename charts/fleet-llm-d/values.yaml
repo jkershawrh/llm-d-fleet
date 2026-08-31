@@ -61,7 +61,7 @@ controller:
     endpointsDirectory: /var/lib/fleet-llm-d/router-endpoints
     allowInsecure: false
   image:
-    repository: ghcr.io/llm-d/fleet-controller
+    repository: ghcr.io/jkershawrh/llm-d-fleet/fleet-controller
     tag: ""
     pullPolicy: IfNotPresent
   mode: control
@@ -106,7 +106,7 @@ agent:
   enabled: true
   replicaCount: 1
   image:
-    repository: ghcr.io/llm-d/fleet-agent
+    repository: ghcr.io/jkershawrh/llm-d-fleet/fleet-agent
     tag: ""
     pullPolicy: IfNotPresent
   ports:

@@ -14,9 +14,9 @@ release. For the v0.3.0 public release, use:
 helm upgrade --install fleet charts/fleet-llm-d \
   --namespace fleet-llm-d \
   --set clusterIdentity.clusterId=community-cluster-01 \
-  --set controller.image.repository=ghcr.io/jkershawrh/fleet-llm-d/fleet-controller \
+  --set controller.image.repository=ghcr.io/jkershawrh/llm-d-fleet/fleet-controller \
   --set controller.image.tag=0.3.0 \
-  --set agent.image.repository=ghcr.io/jkershawrh/fleet-llm-d/fleet-agent \
+  --set agent.image.repository=ghcr.io/jkershawrh/llm-d-fleet/fleet-agent \
   --set agent.image.tag=0.3.0
 ```
 

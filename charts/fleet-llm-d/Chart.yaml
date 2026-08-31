@@ -2,7 +2,7 @@ apiVersion: v2
 name: fleet-llm-d
 description: Fleet-level inference orchestration for llm-d
 version: 0.3.0
-appVersion: "0.2.0"
+appVersion: "0.3.0"
 type: application
 keywords:
   - inference

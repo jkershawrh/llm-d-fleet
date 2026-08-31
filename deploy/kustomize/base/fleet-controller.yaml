@@ -44,7 +44,7 @@ spec:
       serviceAccountName: fleet-controller
       containers:
         - name: fleet-controller
-          image: ghcr.io/llm-d/fleet-controller:0.2.0
+          image: ghcr.io/jkershawrh/llm-d-fleet/fleet-controller:0.3.0
           imagePullPolicy: IfNotPresent
           args:
             - --port=8080
