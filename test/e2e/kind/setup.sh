@@ -147,7 +147,20 @@ CONTROLLER_URL="http://${HUB_IP}:${NODEPORT}"
 
 echo ""
 echo "=== Controller accessible at $CONTROLLER_URL ==="
-curl -s "$CONTROLLER_URL/healthz" && echo ""
+controller_ready=false
+for attempt in $(seq 1 60); do
+  if curl -fsS --connect-timeout 1 --max-time 2 "$CONTROLLER_URL/healthz" >/dev/null; then
+    controller_ready=true
+    break
+  fi
+  sleep 1
+done
+if [[ "$controller_ready" != "true" ]]; then
+  echo "controller NodePort did not become ready within 60 seconds" >&2
+  kubectl --context "kind-${HUB}" -n fleet-llm-d get pods,svc,endpoints >&2 || true
+  exit 1
+fi
+echo "Controller NodePort is ready"
 
 echo ""
 echo "=== Pre-registering trusted spoke identities ==="
