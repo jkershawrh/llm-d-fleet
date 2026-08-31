@@ -1,4 +1,11 @@
-= fleet-llm-d Presenter Guide
+= Historical llm-d-fleet Presenter Guide
+
+[IMPORTANT]
+====
+Historical presentation material. Counts, costs, topology, and readiness
+statements are retained as prior-session evidence and are not current
+llm-d-fleet product claims.
+====
 Jonathan Kershaw
 :toc: left
 :icons: font

@@ -1,5 +1,8 @@
 # NIST 800-53 Rev 5 Control Mapping
 
+> Engineering crosswalk only; not a third-party assessment or authorization.
+> Platform- and operator-owned controls must be evaluated in each deployment.
+
 | Field | Value |
 |-------|-------|
 | **Framework** | NIST SP 800-53 Revision 5 |

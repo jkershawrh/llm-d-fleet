@@ -1,5 +1,8 @@
 # Penetration Testing Schedule
 
+> Recommended product-security plan. No independent penetration test is
+> claimed by `v0.3.0`; formal security review remains an open proof gate.
+
 | Field | Value |
 |-------|-------|
 | **Scope** | fleet-llm-d control plane, data plane, dashboard, and cross-cluster communication |
@@ -8,7 +11,10 @@
 
 ## Annual Penetration Test
 
-Performed annually by an independent third-party assessor. Covers all deployment modes: Hub, Standalone, and Federated.
+The recommended program commissions an annual independent assessment covering
+the deployment profiles included in the agreed scope. Completion requires a
+retained assessor report and remediation evidence; this repository does not
+assert that such an engagement has occurred.
 
 ### Schedule
 

@@ -1,4 +1,4 @@
-# fleet-llm-d Alignment with Red Hat AI Gateway Architecture
+# llm-d-fleet alignment with Red Hat AI Gateway architecture
 
 **Author:** James Kershaw, AI Field Engineering
 **Date:** July 2026

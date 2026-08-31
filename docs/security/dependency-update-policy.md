@@ -1,5 +1,8 @@
 # Dependency Update Policy
 
+> Maintainer policy for this repository. Downstream operators remain
+> responsible for scanning and patching their complete deployment.
+
 | Field | Value |
 |-------|-------|
 | **Scope** | All direct and transitive dependencies across Go, Rust, Node.js, Python, and container base images |

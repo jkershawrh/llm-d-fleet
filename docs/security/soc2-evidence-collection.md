@@ -1,5 +1,8 @@
 # SOC 2 Type II Evidence Collection Plan
 
+> Evidence-collection template only; not an audit report or SOC 2 attestation.
+> Operators must scope and validate controls with their auditor.
+
 | Field | Value |
 |-------|-------|
 | **Framework** | AICPA SOC 2 Type II |

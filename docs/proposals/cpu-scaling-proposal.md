@@ -1,5 +1,9 @@
 # prod-cluster-1 CPU Inference Scaling Proposal
 
+> **Historical downstream proposal.** Retained as sanitized engineering
+> context, excluded from the portable OSS release, and not an active
+> llm-d-fleet deployment recommendation.
+
 **Date**: 2026-07-08
 **Author**: J. Kershaw (Red Hat AI Field Engineering)
 **Status**: Proposal — requires prod-cluster-1 team approval before any changes

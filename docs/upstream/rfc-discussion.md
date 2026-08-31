@@ -62,7 +62,7 @@ signals without putting the management hub in the request path.
 ## Experience report
 
 We implemented this boundary in the Apache-2.0
-[fleet-llm-d](https://github.com/jkershawrh/fleet-llm-d) project and tested it
+[llm-d-fleet](https://github.com/jkershawrh/llm-d-fleet) project and tested it
 on three physical OpenShift clusters:
 
 - two CPU inference providers in separate clusters;

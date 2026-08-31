@@ -1,4 +1,10 @@
-# fleet-llm-d: Fleet-Level Inference Orchestration for llm-d
+# llm-d-fleet: optional governed inference ecosystem
+
+> **Optional governed-profile paper.** This document describes a broader
+> ecosystem composition, not the minimum llm-d-fleet OSS product. External
+> observation, governance, classification, and immutable-evidence systems are
+> independently deployed integrations. The root README and product-boundary
+> document are authoritative for `v0.3.0`.
 
 ## From Single-Cluster Inference to Governed Fleet Operations on OpenShift
 

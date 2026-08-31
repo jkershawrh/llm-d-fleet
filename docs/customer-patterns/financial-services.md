@@ -2,8 +2,9 @@
 
 > **Evidence status:** Reference architecture. Multi-region data residency
 > enforcement and SLO-gated canary rollouts are design targets based on
-> unit-tested components. No multi-cluster deployment has been validated
-> on real infrastructure.
+> unit-tested components. Portable exact-model routing and provider-loss
+> behavior have multi-cluster product evidence, but this regulated-industry
+> pattern has not been independently certified.
 
 ## Context
 

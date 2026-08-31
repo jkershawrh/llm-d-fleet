@@ -1,4 +1,10 @@
-= fleet-llm-d Demo Script
+= Historical llm-d-fleet Demo Script
+
+[IMPORTANT]
+====
+Historical presentation material. Commands and architecture may predate
+`v0.3.0`; this is not the current llm-d-fleet installation guide.
+====
 Jonathan Kershaw
 :toc: left
 :icons: font

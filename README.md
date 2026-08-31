@@ -1,9 +1,9 @@
-# fleet-llm-d
+# llm-d-fleet
 
 
 **Fleet-level inference orchestration for [llm-d](https://github.com/llm-d) — qualifying exact-model capacity across clusters and handing the eligible provider set to a supported routing data plane.**
 
-fleet-llm-d is a data-plane-neutral operations control plane for enterprise AI inference fleets. It owns cluster registration, capability inventory, exact-model resolution, tenant admission, placement constraints, provider health, draining, failure-domain status, and eligible-provider reconciliation. Praxis is the validated routing adapter for the current release; the llm-d Router adapter is the upstream-native beta. KServe, llm-d Router/EPP, KEDA, and optionally WVA retain cluster-local serving, endpoint selection, and pod-scaling ownership. DeepField, GCL, the immutable ledger, llm-d-sc, ModelPack, and ModelPlane are optional integrations rather than OSS-core prerequisites.
+llm-d-fleet is a data-plane-neutral operations control plane for enterprise AI inference fleets. It owns cluster registration, capability inventory, exact-model resolution, tenant admission, placement constraints, provider health, draining, failure-domain status, and eligible-provider reconciliation. Praxis is the validated routing adapter for the current release; the llm-d Router adapter is the upstream-native beta. KServe, llm-d Router/EPP, KEDA, and optionally WVA retain cluster-local serving, endpoint selection, and pod-scaling ownership. DeepField, GCL, the immutable ledger, llm-d-sc, ModelPack, and ModelPlane are optional integrations rather than OSS-core prerequisites.
 
 ## Distribution and deployment profiles
 
@@ -28,14 +28,14 @@ forks:
 
 See [deployment profiles](docs/community/deployment-profiles.md) and the
 [community release boundary](docs/community/release-boundary.md).
+The [documentation index](docs/README.md) identifies authoritative current
+material and retained historical references.
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Go](https://img.shields.io/badge/Go-1.26+-00ADD8.svg)](https://go.dev/)
 [![Rust](https://img.shields.io/badge/Rust-1.90+-DEA584.svg)](https://www.rust-lang.org/)
-[![Tests](https://img.shields.io/badge/Tests-340%2B_passing-brightgreen.svg)](#testing)
-[![Architecture](https://img.shields.io/badge/Architecture-12_CRDs%2C_42_APIs-blue.svg)](#architecture)
-[![BDD](https://img.shields.io/badge/BDD-49_scenarios-blue.svg)](#testing)
-[![Rust](https://img.shields.io/badge/Rust_Tests-58_passing-blue.svg)](#testing)
+[![CI](https://github.com/jkershawrh/llm-d-fleet/actions/workflows/ci.yaml/badge.svg)](https://github.com/jkershawrh/llm-d-fleet/actions/workflows/ci.yaml)
+[![Security](https://github.com/jkershawrh/llm-d-fleet/actions/workflows/security.yaml/badge.svg)](https://github.com/jkershawrh/llm-d-fleet/actions/workflows/security.yaml)
 
 ---
 
@@ -49,14 +49,14 @@ See [deployment profiles](docs/community/deployment-profiles.md) and the
 See the [OSS and downstream production boundary](docs/community/repository-boundary.md)
 before adding deployment or certification material.
 
-## Why fleet-llm-d
+## Why llm-d-fleet
 
-llm-d and KServe own cluster-local serving and scheduling. Enterprises operating across independent failure domains still need authenticated capability discovery, exact-model eligibility, fleet policy, and failure-domain health before the Router scores a destination. fleet-llm-d fills that coordination boundary without replacing KServe, EPP, KEDA, WVA, or the selected cross-cluster data plane.
+llm-d and KServe own cluster-local serving and scheduling. Enterprises operating across independent failure domains still need authenticated capability discovery, exact-model eligibility, fleet policy, and failure-domain health before the Router scores a destination. llm-d-fleet fills that coordination boundary without replacing KServe, EPP, KEDA, WVA, or the selected cross-cluster data plane.
 
 ## Architecture
 
 ```
-  Layer 3: fleet-llm-d (Operations Control Plane)
+  Layer 3: llm-d-fleet (Operations Control Plane)
                          ┌─────────────────────────────────┐
                          │        fleet-controller         │
                          │  (Go control plane, CRD-driven) │
@@ -259,18 +259,27 @@ Six API endpoints: `/api/v1/cost/pricing`, `/api/v1/cost/tokenomics/{model}`, `/
 - **Network Policies**: Default-deny with explicit allowlists per component
 - **Container Hardening**: UBI base images, non-root (UID 65534), read-only filesystem, drop ALL capabilities
 - **Webhook Validation**: Admission webhook rejects invalid CRD specs
-- **Audit Trail**: Auth failures and RBAC denials recorded as evidence in the standalone immutable ledger
+- **Audit Trail**: When an external immutable ledger is configured, governed
+  mutations fail closed on recording errors; the OSS core does not claim that
+  every authentication or RBAC event is durably recorded by default.
 
 ## Quick Start
 
-### One-Click Deploy (OpenShift)
+### Community profile
 
 ```bash
-./hack/deploy-demo.sh \
-  --cluster-url https://api.mycluster.example.com:6443 \
-  --token $(oc whoami -t) \
-  --ledger-url http://ledger-gateway:28099
+kubectl apply -k api/crds
+kubectl create namespace fleet-llm-d
+kubectl -n fleet-llm-d create configmap fleet-cluster-identity \
+  --from-literal=cluster-id=community-cluster-01
+helm upgrade --install fleet charts/fleet-llm-d \
+  --namespace fleet-llm-d \
+  --values charts/fleet-llm-d/values-standalone-dev.yaml
 ```
+
+This profile is for evaluation and development. See the
+[community installation guide](docs/community/installation.md) before enabling
+external ingress, durable state, a routing provider, or production controls.
 
 ### Local Development
 
@@ -291,14 +300,15 @@ make build-go          # → bin/fleet-controller, bin/fleetctl
 ./bin/fleetctl matrix --format table
 ```
 
-## Customer Examples
+## Illustrative examples
 
-Ready-to-apply CRD examples for specific deployment patterns:
+Example CRDs demonstrate possible policy shapes. They are not certified
+customer configurations or capacity recommendations:
 
 | Pattern | Directory | Key Features |
 |---|---|---|
 | **Telco AI Grid** | [`examples/telco-edge/`](examples/telco-edge/) | 30+ edge sites, geographic routing, 50ms latency target |
-| **Financial Services** | [`examples/financial-services/`](examples/financial-services/) | Regulatory data residency, SLO-gated canary, ARE ledger compliance |
+| **Financial Services** | [`examples/financial-services/`](examples/financial-services/) | Regulatory data-residency and SLO-gated canary design |
 | **Sovereign Cloud** | [`examples/sovereign-cloud/`](examples/sovereign-cloud/) | Air-gapped zones, GPU-as-a-Service multi-tenancy, scale-to-zero |
 
 ## Deployment Modes
@@ -316,9 +326,9 @@ and production-safe external dependency configuration.
 
 ## Dashboard
 
-<!-- ![Dashboard](docs/assets/dashboard-screenshot.png) -->
-
-The fleet-llm-d dashboard is a Next.js (TypeScript) application providing fleet-wide visibility and management.
+The llm-d-fleet dashboard is a Next.js application that renders the state and
+optional integrations exposed by the controller. A page being present does
+not imply that its external data source is configured.
 
 **Pages:**
 
@@ -335,9 +345,10 @@ The fleet-llm-d dashboard is a Next.js (TypeScript) application providing fleet-
 ```bash
 make test              # Run all tests
 make test-unit         # Go and Rust unit tests
-make test-bdd          # 49 feature scenarios
+make test-bdd          # BDD scenarios
 make test-contracts    # Contract tests (proto + OpenAPI validation)
 make test-e2e          # End-to-end tests (requires running infrastructure)
+make test-portable-conformance # Topology-neutral product contract
 ```
 
 ```bash
@@ -351,7 +362,28 @@ go test -tags=security ./test/security/...
 ./test/soak/run-soak.sh --duration 7200 --rps 10
 ```
 
-### Architectural Proof
+### Current product evidence
+
+Architectural tests prove code-level invariants; they do not alone prove an
+assembled deployment. `make test-portable-conformance` exercises the portable
+product contract, and the disposable multi-cluster Kind workflow exercises
+runtime discovery, placement, readiness, and inference.
+
+The [current conformance report](docs/upstream/multicluster-product-conformance-2026-08-31.md)
+records supported claims and deliberate non-claims. The
+[reviewer evidence package](docs/upstream/reviewer-evidence-package.md) links
+release provenance, limitations, and the independent clean-room protocol.
+Long-duration, capacity, and governed-profile results are deployment-specific
+and remain outside the portable release.
+
+<details>
+<summary>Historical test and deployment snapshots</summary>
+
+The following results are retained for engineering traceability. They span
+earlier software, topology, transport, and optional-ecosystem revisions and
+must not be presented as `v0.3.0` product certification.
+
+### Architectural proof snapshot
 
 Architectural assertions are exercised by tests in `test/architecture/`.
 These tests are design evidence; they do not by themselves prove assembled
@@ -406,7 +438,10 @@ are intentionally not committed to the OSS repository.
 | Soak | 6/6 | 300 cycles, 0 errors, 1.2x drift; mixed concurrent (60s): 479 requests, 0% error rate |
 | Pen Testing | 5/5 | SQL injection, path traversal, malformed input all handled |
 
-See [`docs/whitepaper/fleet-llm-d-whitepaper.md`](docs/whitepaper/fleet-llm-d-whitepaper.md) section 5.5 for the full breakdown.
+The [current OSS whitepaper](docs/whitepaper/llm-d-fleet-whitepaper.md)
+describes the supported architecture and evidence boundary. Historical
+governed-profile stress details remain in the clearly labeled extended
+engineering record.
 
 ### Environment Certification
 
@@ -442,13 +477,14 @@ integrity evidence, limitations, and independent clean-room protocol.
 
 See [`test/matrix/matrix.yaml`](test/matrix/matrix.yaml) and [`test/matrix/rubric.yaml`](test/matrix/rubric.yaml).
 
-## Customer Deployment Patterns
+### Historical illustrative deployment patterns
 
 | Pattern | Example Customers | Profile | Reference |
 |---------|-------------------|---------|-----------|
 | **Telco** | Telco Edge Provider, Mobile Network Operator | 30+ edge sites, latency-sensitive placement, distributed GPU pools. | [`docs/customer-patterns/telco-ai-grid.md`](docs/customer-patterns/telco-ai-grid.md) |
-| **Financial** | Financial Services Provider, Global Banking Partner | Multi-region regulatory constraints, strict tenant isolation, audit trails. | [`docs/customer-patterns/financial-services.md`](docs/customer-patterns/financial-services.md) |
 | **Sovereign** | Government, regulated industries | Air-gapped deployment, data residency enforcement, ARE Ledger integration. | [`docs/customer-patterns/sovereign-cloud.md`](docs/customer-patterns/sovereign-cloud.md) |
+
+</details>
 
 ## Project Structure
 
@@ -489,17 +525,16 @@ fleet-llm-d/
 ├── workflows/                   # Deployment workflow definitions
 ├── docker-compose.yml           # Local dev infrastructure
 ├── docs/
-│   ├── whitepaper/              # Architecture whitepaper
-│   ├── customer-patterns/       # Telco, Financial, Sovereign patterns
-│   ├── demo/                    # 15-minute demo script
-│   └── proposals/               # llm-d upstream SIG proposal
+│   ├── whitepaper/              # Current paper + archived engineering records
+│   ├── customer-patterns/       # Illustrative reference architectures
+│   ├── upstream/                # llm-d contribution and evidence package
+│   └── proposals/               # Historical and exploratory proposals
 ├── hack/
 │   ├── deploy-demo.sh           # One-click deployment script
 │   └── local-dev.sh             # Kind multi-cluster dev setup
 └── test/
     ├── architecture/            # Architectural proof tests
-    ├── bdd/                     # 49 BDD scenario tests
-    ├── compliance/              # Audit trail completeness
+    ├── bdd/                     # BDD scenarios
     ├── contracts/               # Proto + OpenAPI validation
     ├── security/                # Auth integration tests
     ├── soak/                    # Sustained load test harness
@@ -517,10 +552,10 @@ compatibility promise.
 
 | Component | Purpose |
 |-----------|---------|
-| PostgreSQL | Primary state store for fleet configuration and placement data. |
+| PostgreSQL | Optional durable state store; disabled in the community default. |
 | HTTP Event Sink | Optional CloudEvents-compatible endpoint for fleet event streaming (can target Kafka REST proxy). No native Kafka or Redis client -- lib/pq is the sole Go dependency. |
-| Prometheus + Grafana | Monitoring and dashboarding for fleet-wide observability. |
-| ARE Ledger (separate network) | Independent compliance ledger with own PostgreSQL on `are-ledger-net`. |
+| Prometheus + Grafana | Optional monitoring and dashboarding integrations. |
+| External immutable ledger | Optional independently operated evidence service; required only by the governed production profile. |
 
 ## Contributing
 

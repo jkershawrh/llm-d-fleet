@@ -1,4 +1,8 @@
-# fleet-llm-d Demo Script
+# Historical llm-d-fleet demo script
+
+> **Historical demo script.** Commands, topology, and component descriptions
+> may reflect an earlier revision. Do not use this as a `v0.3.0` installation
+> or conformance procedure.
 
 **Duration:** 15 minutes
 **Audience:** Field engineers, customer stakeholders, leadership

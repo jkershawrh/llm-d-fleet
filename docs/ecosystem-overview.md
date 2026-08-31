@@ -1,5 +1,11 @@
 # Governed AI Inference Fleet Platform: Ecosystem Overview
 
+> **Optional ecosystem reference.** DeepField, GCL, immutable evidence, and
+> related systems described here are separate integrations, not dependencies
+> or bundled components of the llm-d-fleet OSS core. Test counts and deployment
+> observations in this document are historical snapshots unless linked to a
+> current release report.
+
 ## What This Is
 
 A 4-system platform for managing AI inference fleets at scale with predictive intelligence, governed autonomy, fleet orchestration, and tamper-evident accountability. Built on Intel Xeon CPU inference, Red Hat OpenShift, and the open-source [llm-d](https://github.com/llm-d) project.
@@ -22,7 +28,7 @@ This platform is built on and integrates with open-source projects across the Re
 | Project | Role in Platform | Link |
 |---|---|---|
 | **llm-d** | Single-cluster inference scheduling and gateway for Kubernetes. The upstream foundation that fleet-llm-d extends to multi-cluster. | [github.com/llm-d](https://github.com/llm-d) |
-| **fleet-llm-d** | Fleet-level multi-cluster orchestration: placement, routing, autoscaling, lifecycle, tenant governance, KV-cache transfer. | [github.com/llm-d/fleet-llm-d](https://github.com/llm-d/fleet-llm-d) |
+| **llm-d-fleet** | Fleet-level multi-cluster orchestration: placement, routing, autoscaling, lifecycle, tenant governance, KV-cache transfer. | [github.com/jkershawrh/llm-d-fleet](https://github.com/jkershawrh/llm-d-fleet) |
 | **ModelPlane** | Model lifecycle state management. fleet-llm-d's ComplianceBridge watches ModelPlane for compliance-driven placement updates. | Integrated in fleet-llm-d |
 | **ModelPack** | OCI-based model metadata resolution (CNCF model-spec). Resolves GPU requirements, precision, and format for placement decisions. | [github.com/cncf/model-spec](https://github.com/cncf/model-spec) |
 | **Praxis AI** | Programmable AI gateway for model-based routing, token counting, and access logging. Replaces fleet-gateway as the inference data plane. | [github.com/praxis-proxy/ai](https://github.com/praxis-proxy/ai) |
@@ -212,9 +218,10 @@ An 8-phase stress test exercised all 4 systems on the HubCluster cluster. GCL ra
 | 7. Pen Testing | 5/5 | No injection or traversal vulnerabilities |
 | 8. Chaos | 1/3 | 200 simultaneous cycles with 0 errors; single-pod ceiling reached at saturation |
 
-See the [ecosystem validation report](ecosystem-validation-report.md) and the
-[current fleet whitepaper](whitepaper/fleet-llm-d-whitepaper.md) for the full
-breakdown and evidence boundaries.
+Environment-specific ecosystem validation is maintained outside the public
+repository. See the [current OSS whitepaper](whitepaper/llm-d-fleet-whitepaper.md)
+and [portable conformance report](upstream/multicluster-product-conformance-2026-08-31.md)
+for the supported breakdown and evidence boundaries.
 
 ### Cascade Soak (3-Cluster, August 2026)
 

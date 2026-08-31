@@ -1,5 +1,9 @@
 # Speculative Routing & Zero-Cost Prompt Classification
 
+> **Exploratory design, not a released capability claim.** Classification is
+> optional and cannot override exact-model compatibility, tenant policy, or
+> provider health in the current llm-d-fleet contract.
+
 **Author:** Jonathan Kershaw
 **Date:** July 2026
 **Status:** Proposal

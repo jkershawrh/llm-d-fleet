@@ -1,4 +1,10 @@
-= fleet-llm-d Hands-On Lab
+= Historical llm-d-fleet Hands-On Lab
+
+[IMPORTANT]
+====
+Historical lab material. Environment references and component behavior may
+predate `v0.3.0`; use `docs/community/installation.md` for the current path.
+====
 Jonathan Kershaw
 :toc: left
 :icons: font

@@ -1,4 +1,8 @@
-# fleet-llm-d: Fleet-Level Inference Orchestration for llm-d
+# Archived llm-d-fleet governed-ecosystem export
+
+> **Archived Google Docs export.** This copy is retained for document history;
+> it is not authoritative for current llm-d-fleet architecture or release
+> claims. See the root README and `docs/architecture/product-boundary.md`.
 
 ## From Single-Cluster Inference to Governed Fleet Operations on OpenShift
 

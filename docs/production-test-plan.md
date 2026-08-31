@@ -1,4 +1,8 @@
-# fleet-llm-d Production Test Plan
+# llm-d-fleet production test model
+
+> This document defines reusable test stages and acceptance criteria. Passing
+> the test implementation does not certify an operator's infrastructure; each
+> deployment must retain its own capacity, failure, security, and soak evidence.
 
 **Project:** fleet-llm-d -- Fleet-level inference orchestration platform  
 **Version:** 0.1.0  

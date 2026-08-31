@@ -1,4 +1,8 @@
-# fleet-llm-d Architecture
+# llm-d-fleet architecture
+
+> **Current architecture.** This overview describes the `v0.3.0` OSS
+> responsibility boundary. Praxis is the validated routing provider and llm-d
+> Router is the upstream-native beta; neither is part of the fleet core.
 
 ## Three-Layer Stack
 
@@ -16,7 +20,7 @@ remains the default local scaling primitive.
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  LAYER 3: fleet-llm-d (Operations Control Plane)                        │
+│  LAYER 3: llm-d-fleet (Operations Control Plane)                        │
 │                                                                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                   │
 │  │  Placement   │  │  Lifecycle   │  │   Tenant     │                   │
@@ -38,20 +42,19 @@ remains the default local scaling primitive.
                            │ routing decision
                            ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  LAYER 2: Praxis AI + Grid (Programmable Data Plane)                    │
+│  LAYER 2: Selected routing provider                                     │
 │                                                                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                   │
-│  │ Model-Based  │  │   Token      │  │   Access     │                   │
-│  │ Routing      │  │  Counting    │  │   Logging    │                   │
+│  │ Praxis       │  │ llm-d Router │  │ Request ID   │                   │
+│  │ (validated)  │  │   (beta)     │  │ propagation │                   │
 │  └──────────────┘  └──────────────┘  └──────────────┘                   │
 │                                                                         │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                   │
-│  │ SWIM Mesh    │  │ CRDT State   │  │    mTLS      │                   │
-│  │ Discovery    │  │ Propagation  │  │  Between     │                   │
-│  │ (Grid)       │  │ (Grid)       │  │  Sites       │                   │
+│  │ Qualified    │  │ Adapter-owned│  │ Verified TLS │                   │
+│  │ provider set │  │ translation │  │ and identity │                   │
 │  └──────────────┘  └──────────────┘  └──────────────┘                   │
 │                                                                         │
-│  Praxis AI gateway │ protocol translation │ multi-site mesh             │
+│  One authoritative provider │ no client-selected internal routing       │
 └───────┬─────────────────────┬─────────────────────┬─────────────────────┘
         │                     │                     │
         ▼                     ▼                     ▼
@@ -60,7 +63,7 @@ remains the default local scaling primitive.
 │               │   │               │   │               │
 │  ┌─────────┐  │   │  ┌─────────┐  │   │  ┌─────────┐  │
 │  │ llm-d   │  │   │  │ llm-d   │  │   │  │ llm-d   │  │
-│  │ EPP+WVA │  │   │  │ EPP+WVA │  │   │  │ EPP+WVA │  │
+│  │EPP+KEDA │  │   │  │EPP+KEDA │  │   │  │EPP+KEDA │  │
 │  └────┬────┘  │   │  └────┬────┘  │   │  └────┬────┘  │
 │       │       │   │       │       │   │       │       │
 │  ┌────▼────┐  │   │  ┌────▼────┐  │   │  ┌────▼────┐  │
@@ -73,7 +76,7 @@ remains the default local scaling primitive.
         └───────────────────┼───────────────────┘
                             │
 ┌───────────────────────────▼─────────────────────────────────────────────┐
-│  LAYER 1: ConnectLink + NIXL (GPU/Accelerator Fabric)                   │
+│  OPTIONAL: KV-transfer transport (not required by fleet routing)         │
 │                                                                         │
 │  ┌─────────────-─┐  ┌──────────────┐  ┌──────────────┐                  │
 │  │  TCP          │  │  RDMA/RoCE   │  │  OFI         │                  │
@@ -308,7 +311,12 @@ Client Request (model="auto")
 └─────────────────────────────────────────────────────────┘
 ```
 
-## Deployment Topology (Current)
+## Historical reference topology
+
+> This sanitized snapshot predates `v0.3.0` and used NodePort bridges. It is
+> retained to explain earlier measurements, not as current transport guidance
+> or production certification. Portable deployments supply their own verified
+> transport and topology.
 
 ```
 ┌─────────────────────────────────────────┐

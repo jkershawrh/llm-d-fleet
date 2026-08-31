@@ -10,8 +10,8 @@ if ! command -v pandoc &>/dev/null; then
 fi
 
 echo "Building whitepaper PDF..."
-pandoc fleet-llm-d-whitepaper.md \
-    -o fleet-llm-d-whitepaper.pdf \
+pandoc llm-d-fleet-whitepaper.md \
+    -o llm-d-fleet-whitepaper.pdf \
     --pdf-engine=xelatex \
     -V geometry:margin=1in \
     -V fontsize=11pt \
@@ -20,4 +20,4 @@ pandoc fleet-llm-d-whitepaper.md \
     --number-sections \
     --highlight-style=tango
 
-echo "Built: fleet-llm-d-whitepaper.pdf"
+echo "Built: llm-d-fleet-whitepaper.pdf"

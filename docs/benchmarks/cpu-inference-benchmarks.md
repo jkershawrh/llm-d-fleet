@@ -1,5 +1,11 @@
 # prod-cluster-1 CPU Inference Benchmarks
 
+> **Sanitized downstream evidence — not current release certification.** This
+> report preserves measurements from an earlier environment and software
+> revision. It is excluded from the portable OSS source archive. Use the
+> [current conformance report](../upstream/multicluster-product-conformance-2026-08-31.md)
+> for supported `v0.3.0` product claims.
+
 **Date**: 2026-07-08
 **Cluster**: prod-cluster-1 (prod-cluster-1.example.com)
 **Hardware**: Intel Xeon 6767P (Granite Rapids), 256 cores per worker, AMX (amx_bf16, amx_int8, amx_tile)

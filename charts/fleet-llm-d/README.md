@@ -1,4 +1,7 @@
-# fleet-llm-d Helm chart
+# llm-d-fleet Helm chart
+
+The chart directory and Kubernetes namespace retain the `fleet-llm-d` name for
+backward compatibility. The public project and product name is `llm-d-fleet`.
 
 This chart deploys the controller and per-cluster agent as separate workloads.
 The controller hosts the OpenAI-compatible ingress and forwards accepted
@@ -77,8 +80,11 @@ Agent Services remain internal, and Praxis is an external dependency.
 ## External dependencies
 
 - GCL DecisionPackage admission is disabled until `externalDependencies.gcl`
-  names an existing Secret containing the shared signing key and its key ID.
-  Fleet verifies the producer signature before creating a FleetIntent.
+  names an existing Secret containing GCL's Ed25519 public verification key
+  and its key ID. GCL retains the private key; fleet verifies producer
+  authorship before creating a FleetIntent. The `secretKey` value name is a
+  backward-compatible chart identifier and must never contain GCL's private
+  key.
 - The v2 production ingress accepts verified GCL DecisionPackage CloudEvents.
   Plain `application/json` v2 intents are disabled by default because their
   provenance is self-asserted. Set `controller.allowOperatorJSONIntents=true`

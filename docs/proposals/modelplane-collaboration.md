@@ -1,4 +1,9 @@
-# ModelPlane + fleet-llm-d Collaboration Proposal
+# ModelPlane + llm-d-fleet collaboration proposal
+
+> **Historical collaboration draft.** Product naming, repository links, and
+> implementation state in the body reflect the proposal date. The current OSS
+> project is [llm-d-fleet](https://github.com/jkershawrh/llm-d-fleet), and the
+> [product boundary](../architecture/product-boundary.md) is authoritative.
 
 ## To: Bassam Tabbara, Nic Cope (ModelPlane / Upbound)
 ## From: Jonathan Kershaw, Red Hat AI Engineering
@@ -71,6 +76,6 @@ We've already implemented the integration layer (1,942 lines of Go):
 
 ## Project
 
-- **GitHub:** https://github.com/fleet-llm-d/fleet-llm-d
+- **GitHub:** https://github.com/jkershawrh/llm-d-fleet
 - **Architecture:** 50 proven claims, 500+ tests, deployed on OpenShift with real inference
 - **License:** Apache 2.0

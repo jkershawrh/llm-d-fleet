@@ -31,6 +31,12 @@ deploy/mock-inference
 deploy/prometheus
 deploy/grafana
 docs/community
+docs/README.md
+docs/architecture-diagram.md
+docs/architecture/product-boundary.md
+docs/security/README.md
+docs/upstream
+docs/whitepaper/llm-d-fleet-whitepaper.md
 hack/build-oss-release.sh
 hack/check-public-boundary.sh
 hack/run-portable-conformance.sh

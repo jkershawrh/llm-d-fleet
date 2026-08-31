@@ -1,10 +1,17 @@
 # Fleet-Level Inference Orchestration for Enterprise AI
 
+> **Historical extended engineering record.** This document combines design
+> material and measurements from several pre-`v0.3.0` deployment revisions.
+> It is retained for traceability but is not the authoritative OSS whitepaper
+> or current certification statement. Read
+> [`llm-d-fleet-whitepaper.md`](llm-d-fleet-whitepaper.md) for the normalized
+> product architecture and evidence boundary.
+
 ## Architecture, Benchmarks, and Production Validation with llm-d
 
-**Authors:** Jonathan Kershaw, Naina Singh
+**Author:** Jonathan Kershaw
 **Date:** August 2026
-**Version:** Draft 0.7
+**Version:** Archived draft 0.7
 
 ---
 

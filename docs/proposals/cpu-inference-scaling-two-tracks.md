@@ -1,5 +1,9 @@
 # CPU Inference Scaling — Two-Track Strategy
 
+> **Historical downstream proposal.** The deployment state and measurements
+> below predate `v0.3.0`; they are not current product certification or an OSS
+> installation guide.
+
 **Date**: 2026-07-08
 **Author**: J. Kershaw (Red Hat AI Field Engineering)
 

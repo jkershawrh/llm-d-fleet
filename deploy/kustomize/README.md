@@ -1,4 +1,7 @@
-# Kustomize deployment profiles
+# llm-d-fleet Kustomize deployment profiles
+
+Resource names and the default `fleet-llm-d` namespace remain compatibility
+identifiers; they do not represent a separate product edition.
 
 The base deploys the fleet controller and per-cluster agent in the
 `fleet-llm-d` namespace. The controller serves the OpenAI-compatible ingress

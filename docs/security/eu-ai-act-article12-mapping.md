@@ -1,5 +1,9 @@
 # EU AI Act Article 12 -- Record-Keeping Mapping
 
+> Engineering mapping only; not legal advice, conformity assessment, or a
+> compliance certification. Immutable evidence is an optional external
+> integration outside the OSS-core default.
+
 | Field | Value |
 |-------|-------|
 | **Regulation** | EU AI Act (Regulation 2024/1689), Article 12 |
@@ -13,7 +17,9 @@ Article 12 of the EU AI Act requires providers and deployers of high-risk AI sys
 
 ## Record-Keeping Infrastructure
 
-fleet-llm-d records decisions to the **ARE Immutable Ledger** via `FleetRecorder` (`pkg/ledger/fleet_recorder.go`). Each record includes:
+When configured, llm-d-fleet records governed decisions to an external
+immutable ledger via `FleetRecorder` (`pkg/ledger/fleet_recorder.go`). The OSS
+core defaults this integration to disabled. Each configured record includes:
 
 - SHA-256 content hash (`computeInputHash`)
 - Chain position within a typed hash chain

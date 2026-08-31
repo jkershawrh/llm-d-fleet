@@ -1,5 +1,11 @@
 # CPU Inference at Scale: Engineering Proof for Red Hat Summit Connect
 
+> **Historical downstream proof — not the llm-d-fleet OSS whitepaper.** This
+> document records an earlier event-specific deployment and is excluded from
+> the portable source release. Its topology, performance, and readiness claims
+> must not be generalized to `v0.3.0`. See
+> [the current reviewer package](../upstream/reviewer-evidence-package.md).
+
 ## Scaling LLM Inference on Intel Xeon Without GPUs
 
 **Authors:** Jonathan Kershaw

@@ -1,4 +1,12 @@
-# Air-Gap Image Mirror for fleet-llm-d
+# Air-gap image mirror for llm-d-fleet
+
+The default namespace and some mirror path examples retain `fleet-llm-d` as a
+backward-compatible deployment identifier.
+
+> This full-repository overlay is an operator example and is not included in
+> the portable OSS source archive. Operators must pin every mirrored image by
+> digest, verify its license and signature, and provide platform-specific
+> registry credentials before treating a disconnected deployment as releasable.
 
 This overlay replaces all external container image references with a local
 mirror registry, enabling deployment in disconnected (air-gapped) environments

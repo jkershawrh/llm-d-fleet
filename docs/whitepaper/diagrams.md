@@ -1,4 +1,8 @@
-# fleet-llm-d Whitepaper Diagrams
+# Historical llm-d-fleet whitepaper diagrams
+
+> These diagrams support archived whitepaper revisions and may show older
+> component or authentication contracts. The current architecture is in
+> `docs/architecture-diagram.md` and `llm-d-fleet-whitepaper.md`.
 
 Mermaid diagrams for the fleet-llm-d governed AI inference fleet whitepaper.
 

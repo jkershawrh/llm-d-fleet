@@ -1,5 +1,9 @@
 # Intel TDX Enablement on prod-cluster-1
 
+> **Historical environment proposal.** This planning record is not part of
+> the portable llm-d-fleet contract and is excluded from the OSS source
+> archive.
+
 **Date**: 2026-07-08
 **Status**: Planning — requires prod-cluster-1 infrastructure team coordination
 **Prerequisite**: BIOS access (BMC/IPMI) to worker nodes

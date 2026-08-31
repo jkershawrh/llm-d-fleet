@@ -1,4 +1,8 @@
-# NIST AI RMF Crosswalk -- fleet-llm-d
+# NIST AI RMF crosswalk — llm-d-fleet
+
+> This engineering crosswalk is not a third-party assessment, legal opinion,
+> or certification. Operators must evaluate the controls of their complete
+> deployment and optional integrations independently.
 
 | Field | Value |
 |-------|-------|

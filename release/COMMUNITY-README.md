@@ -1,6 +1,6 @@
-# fleet-llm-d community release
+# llm-d-fleet community release
 
-fleet-llm-d is an Apache-2.0 fleet-level inference control plane for multiple
+llm-d-fleet is an Apache-2.0 fleet-level inference control plane for multiple
 llm-d deployments. This portable release contains the controller, agent,
 OpenAI-compatible controller ingress, API definitions, Helm chart, generic
 Kubernetes manifests, mock inference backend, and portable tests.
@@ -37,6 +37,11 @@ kubectl kustomize deploy/kustomize/overlays/community
 See `docs/community/installation.md` for image and dependency configuration.
 See `docs/community/release-boundary.md` for the exact distinction between the
 portable artifact and environment material preserved in the full repository.
+The chart path, Go module, binary names, and default Kubernetes namespace retain
+`fleet-llm-d` as backward-compatible technical identifiers.
+See `docs/README.md` for the authoritative documentation map and
+`docs/upstream/reviewer-evidence-package.md` for the portable product claims,
+limitations, release evidence, and clean-room reproduction protocol.
 
 ## Optional integrations
 

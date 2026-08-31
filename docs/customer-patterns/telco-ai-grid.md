@@ -1,9 +1,9 @@
 # Telco AI Grid Deployment Pattern
 
 > **Evidence status:** Reference architecture. Multi-cluster topology is a design
-> target, not measured production evidence. Single-cluster components are
-> unit-tested. Cross-cluster routing and failover have not been validated
-> on real infrastructure.
+> target, not measured production evidence for a 30-site carrier deployment.
+> Portable three-cluster routing and failover behavior are supported by the
+> current conformance report; the scale and latency targets below are unproven.
 
 ## Context
 

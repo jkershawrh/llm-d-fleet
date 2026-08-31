@@ -1,4 +1,4 @@
-# fleet-llm-d + Praxis: Unified AI Inference Architecture
+# llm-d-fleet + Praxis migration record
 
 **Status:** Draft  
 **Author:** James Kershaw, AI Field Engineering  

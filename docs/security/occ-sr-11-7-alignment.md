@@ -1,5 +1,8 @@
 # OCC SR 11-7 Model Risk Management Alignment
 
+> Design alignment only; not legal advice, supervisory approval, or evidence
+> that a financial institution's model-risk program is compliant.
+
 | Field | Value |
 |-------|-------|
 | **Regulation** | OCC Supervisory Letter SR 11-7: Guidance on Model Risk Management |
