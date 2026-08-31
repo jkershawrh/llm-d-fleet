@@ -8,6 +8,11 @@ The current portable product evidence is recorded in
 `multicluster-product-conformance-2026-08-31.md`. It separates reusable product
 claims from the disposable HubCluster/CpuCluster/GpuCluster reference environment.
 
+For review, start with `reviewer-evidence-package.md`. It links the product
+boundary, design, conformance result, release integrity evidence, limitations,
+and independent reproduction protocol without requiring access to a private
+deployment repository.
+
 The proposed sequence is:
 
 1. Review and post `rfc-discussion.md` as a GitHub discussion or RFC issue.

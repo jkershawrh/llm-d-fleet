@@ -45,13 +45,20 @@ current Route-based HA release.
 ## Gates beyond portable product proof
 
 - Reproduce the conformance suite in an independent, topology-neutral testbed.
-- Publish signed release artifacts, provenance, and the exact conformance
-  harness revision.
 - Complete formal product security review.
 - Validate external HA PostgreSQL and immutable evidence only for a governed
   downstream profile; neither is a prerequisite for the portable OSS core.
 - Add a second compatible GPU provider before advertising GPU model HA.
 - Keep environment certification separate from product conformance claims.
+
+## Completed release-integrity gate
+
+Release `v0.3.0` publishes the exact source and conformance revision with
+signed multi-architecture images, binary archives, a portable source archive,
+CycloneDX SBOMs, provenance attestations, and SHA-256 checksums. CI, security,
+and disposable three-cluster Kind E2E gates passed for the tagged commit. This
+closes artifact provenance as a release gate; independent clean-room execution
+and formal product security review remain open product-proof work.
 
 ## Router v0.10 compatibility work
 

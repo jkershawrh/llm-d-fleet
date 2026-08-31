@@ -6,6 +6,9 @@
 
 **Classification:** product proof, not certification of the reference infrastructure
 
+**Release under review:** [`v0.3.0`](https://github.com/jkershawrh/llm-d-fleet/releases/tag/v0.3.0), commit
+`84f07898e82d3b9a37aa8cdfd61e9aa889bdb43b`
+
 ## Result
 
 The test run demonstrated that fleet eligibility and policy are applied before
@@ -79,8 +82,25 @@ not part of the portable product contract.
 - This report does not certify the security, capacity, availability, database,
   ledger, certificates, or operations of HubCluster, CpuCluster, or GpuCluster for
   production use.
-- The run is staging-level product evidence. Independent reproducibility,
-  formal security review, and release artifact provenance remain release gates.
+- The run is staging-level product evidence. Independent reproducibility and
+  formal product security review remain the principal follow-up gates.
+
+## Release integrity evidence
+
+The portable implementation and the exact conformance harness revision above
+were published together as `v0.3.0`. The release gate completed with:
+
+- passing CI, security, and disposable three-cluster Kind E2E workflows;
+- Linux AMD64 and ARM64 binary archives;
+- a boundary-checked portable OSS source archive;
+- signed multi-architecture controller and agent images;
+- controller and agent CycloneDX SBOMs;
+- build-provenance and SBOM attestations; and
+- published SHA-256 checksums, independently re-downloaded and verified.
+
+These controls establish traceability from the public source revision to the
+published artifacts. They do not substitute for an independent deployment or
+a formal product security assessment.
 
 ## Reproduction boundary
 
@@ -89,3 +109,5 @@ providers for one exact CPU model, one provider for a distinct exact GPU model,
 the fleet gateway, and one supported routing adapter. Environment-specific
 hostnames, credentials, storage classes, certificates, and node selectors must
 be supplied by the test operator and are intentionally absent from this report.
+The independent execution protocol is defined in
+[`clean-room-reproduction.md`](clean-room-reproduction.md).

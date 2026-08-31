@@ -415,6 +415,11 @@ downstream environment repository. Public releases contain the harness,
 acceptance criteria, and topology-neutral product-conformance results—not
 cluster addresses, credentials, deployment snapshots, or private telemetry.
 
+Upstream and product reviewers can start with the
+[`llm-d-fleet` reviewer evidence package](docs/upstream/reviewer-evidence-package.md),
+which links the product boundary, portable conformance result, release
+integrity evidence, limitations, and independent clean-room protocol.
+
 ### Resilience (On-Cluster)
 
 6 resilience tests passed: fleet controller pod kill (9ms recovery), GCL pod kill (8ms), simultaneous kill (12ms/10ms), rapid restart 5x (avg 7ms), post-disruption soak (0% error rate).
