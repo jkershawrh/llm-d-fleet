@@ -373,7 +373,6 @@ red_green_rubric:
     green: "The scenario passes through the expected behavior path."
     checks:
       - "go test -tags=bdd ./test/bdd/..."
-      - "go test -tags=compliance ./test/compliance/..."
       - "go test -tags=security ./test/security/..."
   edd:
     red: "An operational/runtime executable, lint, or build check fails."

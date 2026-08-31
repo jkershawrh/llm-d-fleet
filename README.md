@@ -347,9 +347,6 @@ go test -tags=architecture ./test/architecture/...
 # Security tests: auth, rate limiting, webhook validation
 go test -tags=security ./test/security/...
 
-# Compliance: audit trail completeness
-go test -tags=compliance ./test/compliance/...
-
 # Soak test: sustained load for configurable duration
 ./test/soak/run-soak.sh --duration 7200 --rps 10
 ```
