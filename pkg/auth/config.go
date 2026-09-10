@@ -49,6 +49,22 @@ const MinSecretLength = 32
 // to start is the correct outcome: a controller that serves traffic with
 // auth_enabled=false after a mis-mounted Secret is the worst case.
 func ConfigFromEnv() (Config, error) {
+	return configFromEnv(ProviderName(strings.TrimSpace(os.Getenv("FLEET_IDENTITY_PROVIDER"))))
+}
+
+// ConfigFromEnvWithProvider loads authentication configuration while using
+// provider as the command-line override. An empty override uses
+// FLEET_IDENTITY_PROVIDER and then the backward-compatible HMAC/disabled
+// inference rules.
+func ConfigFromEnvWithProvider(provider string) (Config, error) {
+	selected := ProviderName(strings.TrimSpace(provider))
+	if selected == "" {
+		selected = ProviderName(strings.TrimSpace(os.Getenv("FLEET_IDENTITY_PROVIDER")))
+	}
+	return configFromEnv(selected)
+}
+
+func configFromEnv(provider ProviderName) (Config, error) {
 	secret := os.Getenv("FLEET_AUTH_SECRET")
 
 	// FLEET_AUTH_SECRET_FILE takes precedence (for K8s Secret volume mounts).
@@ -78,7 +94,6 @@ func ConfigFromEnv() (Config, error) {
 		ttl = parsed
 	}
 
-	provider := ProviderName(strings.TrimSpace(os.Getenv("FLEET_IDENTITY_PROVIDER")))
 	if provider == "" {
 		if secret != "" {
 			provider = ProviderHMAC

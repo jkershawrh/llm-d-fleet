@@ -88,6 +88,19 @@ func TestConfigFromEnv_RejectsUnknownProvider(t *testing.T) {
 	}
 }
 
+func TestConfigFromEnvWithProvider_FlagOverridesEnvironment(t *testing.T) {
+	t.Setenv("FLEET_IDENTITY_PROVIDER", string(ProviderDisabled))
+	t.Setenv("FLEET_AUTH_SECRET", testSecret)
+	t.Setenv("FLEET_AUTH_SECRET_FILE", "")
+	cfg, err := ConfigFromEnvWithProvider(string(ProviderHMAC))
+	if err != nil {
+		t.Fatalf("ConfigFromEnvWithProvider() error = %v", err)
+	}
+	if cfg.Provider != ProviderHMAC || !cfg.Enabled {
+		t.Fatalf("config = %#v", cfg)
+	}
+}
+
 func TestConfigFromEnv_SecretSet(t *testing.T) {
 	t.Setenv("FLEET_AUTH_SECRET", testSecret)
 	t.Setenv("FLEET_AUTH_TTL", "")

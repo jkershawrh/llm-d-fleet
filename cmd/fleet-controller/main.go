@@ -50,6 +50,7 @@ func main() {
 	rateBurst := flag.Int("rate-burst", 200, "Rate limit burst size (max requests before throttling)")
 	rateLimitExempt := flag.String("rate-limit-exempt", "/healthz,/readyz,/metrics", "Comma-separated exact paths exempt from rate limiting and auth")
 	trustProxyHeaders := flag.Bool("trust-proxy-headers", false, "Honour X-Forwarded-For when identifying clients for rate limiting. Enable ONLY when every request arrives through a proxy that overwrites the header; otherwise clients can forge their own rate-limit identity")
+	identityProvider := flag.String("identity-provider", "", "Request identity provider: disabled, hmac, or trusted-proxy (env FLEET_IDENTITY_PROVIDER; default preserves existing HMAC behavior)")
 	praxisURL := flag.String("praxis-url", "", "Internal Praxis inference endpoint")
 	inferenceProvider := flag.String("inference-provider", "", "Inference data plane: praxis (default) or llm-d-router")
 	llmdCPUURL := flag.String("llm-d-router-cpu-url", "", "Internal llm-d Router CPU proxy endpoint")
@@ -150,7 +151,7 @@ func main() {
 			"are-immutable-ledger for anything that must be auditable.")
 	}
 
-	authCfg, err := auth.ConfigFromEnv()
+	authCfg, err := auth.ConfigFromEnvWithProvider(*identityProvider)
 	if err != nil {
 		slog.Error("invalid authentication configuration", "error", err)
 		os.Exit(1)
@@ -159,11 +160,16 @@ func main() {
 		slog.Warn("authentication is DISABLED: every API request will be served unauthenticated. " +
 			"Set FLEET_AUTH_SECRET or FLEET_AUTH_SECRET_FILE before exposing this controller.")
 	}
+	if *grpcPort > 0 && authCfg.Provider != auth.ProviderHMAC {
+		slog.Error("JSON-RPC identity configuration rejected", "identity_provider", authCfg.Provider,
+			"error", "JSON-RPC currently requires the hmac identity provider")
+		os.Exit(1)
+	}
 	if err := validateProductionConfig(*production, *mode, *pgURL, ledger.Mode(*ledgerMode), *ledgerEndpoint, authCfg.Enabled, *tlsCert, *tlsKey, parsedInferenceProvider, *praxisURL, *llmdCPUURL, *llmdGPUURL, os.Getenv("GCL_DECISION_SIGNING_KEYS_JSON")); err != nil {
 		slog.Error("production configuration rejected", "error", err)
 		os.Exit(1)
 	}
-	slog.Info("configuration loaded", "auth_enabled", authCfg.Enabled, "tls_enabled", *tlsCert != "" && *tlsKey != "", "kube_api", *kubeAPI, "namespace", *namespace, "postgres", *pgURL != "", "event_endpoint", *eventEndpoint)
+	slog.Info("configuration loaded", "auth_enabled", authCfg.Enabled, "identity_provider", authCfg.Provider, "tls_enabled", *tlsCert != "" && *tlsKey != "", "kube_api", *kubeAPI, "namespace", *namespace, "postgres", *pgURL != "", "event_endpoint", *eventEndpoint)
 
 	fc, err := server.NewFleetControllerWithLedgerConfig(ledger.Config{
 		Mode:     ledger.Mode(*ledgerMode),

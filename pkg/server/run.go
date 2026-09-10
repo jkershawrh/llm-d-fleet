@@ -78,8 +78,8 @@ func (fc *FleetController) Run(ctx context.Context, port, metricsPort, grpcPort 
 
 	// Start gRPC (JSON-RPC) server when grpcPort is configured.
 	if grpcPort > 0 {
-		if !authCfg.Enabled {
-			return fmt.Errorf("JSON-RPC requires FLEET_AUTH_SECRET")
+		if authCfg.Provider != auth.ProviderHMAC || authCfg.Secret == "" {
+			return fmt.Errorf("JSON-RPC requires the hmac identity provider and FLEET_AUTH_SECRET")
 		}
 		if tlsCert == "" || tlsKey == "" {
 			return fmt.Errorf("JSON-RPC requires --tls-cert and --tls-key")
