@@ -33,13 +33,13 @@ SBOMs, provenance attestations, and SHA-256 checksums. The tagged revision
 passed CI, security, public-boundary checks, portable conformance, and a
 disposable three-cluster Kind E2E workflow.
 
-## Post-release candidate on `main`
+## `v0.4.0-rc.1` review candidate
 
-The repository's current `main` is newer than `v0.3.0`. It adds the portable
+The `v0.4.0-rc.1` pre-release is newer than `v0.3.0`. It adds the portable
 trusted-gateway identity contract, KServe `serving.kserve.io/v1alpha2`
 reconciliation/status qualification, Router endpoint-withdrawal hardening, and
-an explicit threat model. These changes are candidate evidence until tagged;
-they must not be attributed to the `v0.3.0` release. Start with the
+an explicit threat model. These changes are candidate evidence and must not be
+attributed to the stable `v0.3.0` release. Start with the
 [review-readiness checklist](review-readiness.md), which records the exact
 candidate revision and the external gates that remain open.
 

@@ -3,15 +3,14 @@
 ## Review object
 
 - Repository: <https://github.com/jkershawrh/llm-d-fleet>
-- Published release: `v0.3.0` at
+- Latest stable release: `v0.3.0` at
   `84f07898e82d3b9a37aa8cdfd61e9aa889bdb43b`
-- Post-release review candidate: current `main`; reviewers must record the
-  resolved commit SHA used for review and reproduction
+- Upstream/product review candidate: `v0.4.0-rc.1`; reviewers must record the
+  resolved tag SHA used for review and reproduction
 - License: Apache License 2.0
 
-The candidate is an OSS implementation for technical review. It is not a Red
-Hat product commitment, production certification, security attestation, or new
-tagged release.
+The candidate is an OSS pre-release for technical review. It is not a Red Hat
+product commitment, production certification, or security attestation.
 
 ## Ready for source review
 

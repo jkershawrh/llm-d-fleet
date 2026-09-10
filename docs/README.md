@@ -28,6 +28,9 @@ documents disagree, the current-contract set below is authoritative.
 
 ## Upstream and product review
 
+- [`v0.4.0-rc.1` review brief](upstream/review-brief-v0.4.0-rc.1.md) — concise
+  meeting narrative, ownership table, evidence, limitations, decisions, agenda,
+  and reviewer reading order.
 - [Review readiness and external gates](upstream/review-readiness.md) — one
   checklist separating implemented evidence from deferred environment,
   upstream-release, independent-review, and product-certification work.
