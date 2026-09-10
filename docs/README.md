@@ -10,6 +10,10 @@ documents disagree, the current-contract set below is authoritative.
   release maturity.
 - [Product boundary](architecture/product-boundary.md) — responsibilities of
   fleet, routing providers, KServe, EPP, KEDA, and optional integrations.
+- [Trusted identity boundary](architecture/trusted-identity-boundary.md) —
+  portable Model/API Gateway identity and header-authority contract.
+- [KServe qualification](architecture/kserve-qualification.md) — current
+  serving-target API, status ingestion, and evidence limitations.
 - [Architecture overview](architecture-diagram.md) — current component and
   request-flow overview.
 - [Deployment profiles](community/deployment-profiles.md) — portable core,

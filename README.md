@@ -159,6 +159,12 @@ supports the additive `kserveLLMInferenceService` serving target; KServe then
 owns model workload, revision, readiness, draining, Gateway, and local Router
 lifecycle. The existing `inferencePool` target remains the default.
 
+The beta KServe adapter targets `serving.kserve.io/v1alpha2`, reconciles with
+server-side apply, and accepts only current-generation ready status with a
+KServe-published endpoint. This behavior is unit-qualified but has not yet
+completed independent live-cluster conformance; see the
+[KServe qualification contract](docs/architecture/kserve-qualification.md).
+
 The optional `grid-signals-publisher` converts a cluster-local Prometheus or
 active provider-health source into a small, pool-level contract over strict
 mTLS. It discards source labels and never exports pod, container, instance, or

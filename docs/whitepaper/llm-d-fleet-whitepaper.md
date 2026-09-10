@@ -138,6 +138,12 @@ adds an optional KServe `LLMInferenceService` target. With KServe selected,
 fleet reconciles placement intent and reads status; it does not duplicate
 KServe workload lifecycle.
 
+The current beta implementation follows the upstream
+`serving.kserve.io/v1alpha2` API. It uses server-side apply and recognizes
+capacity only when KServe reports a matching observed generation,
+`Ready=True`, and a published endpoint. This is implementation-level OSS
+evidence; live KServe conformance remains an external qualification gate.
+
 `FleetScalingPolicy` expresses fleet budgets, placement bounds, and migration
 policy. It is not a replacement pod autoscaler. KEDA over EPP metrics is the
 default local scaling path, HPA remains supported, and WVA is an optional

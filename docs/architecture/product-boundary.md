@@ -66,6 +66,11 @@ draining, Gateway, and local Router resources. If the selected cluster client
 cannot apply KServe resources, reconciliation reports degraded state rather
 than pretending the desired placement exists.
 
+The beta adapter currently targets KServe's alpha
+`serving.kserve.io/v1alpha2` contract, uses server-side apply, and advertises a
+provider only when KServe's current-generation `Ready=True` status includes a
+usable address. See [kserve-qualification.md](kserve-qualification.md).
+
 ## Scaling ownership
 
 KEDA over EPP metrics is the default local path for homogeneous pools. WVA is
