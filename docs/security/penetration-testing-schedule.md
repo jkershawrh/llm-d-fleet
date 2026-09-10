@@ -47,6 +47,8 @@ Target all endpoints registered in `pkg/server/routes.go`:
 | Test | Description | Reference |
 |------|-------------|-----------|
 | Token forgery | Attempt HMAC-SHA256 token forgery against `pkg/auth/token.go` | `test/security/pen_test.py` |
+| Trusted assertion forgery | Alter Ed25519 payload, issuer, audience, time window, or mTLS state | `pkg/auth/trusted_proxy_test.go`, `test/security/auth_test.go` |
+| Gateway bypass | Send signed/unsigned identity headers without the required verified gateway transport | `pkg/auth/trusted_proxy_test.go` |
 | Token replay | Replay expired tokens, test refresh token rotation | `test/security/pen_test.py` |
 | Role escalation | Attempt viewer-to-admin escalation via API calls | `test/security/auth_test.go` |
 | RBAC bypass | Access resources outside granted ClusterRole scope | `deploy/kustomize/base/rbac.yaml` |

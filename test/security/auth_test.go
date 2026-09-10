@@ -3,6 +3,11 @@
 package security
 
 import (
+	"crypto/ed25519"
+	"crypto/rand"
+	"crypto/tls"
+	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,6 +17,66 @@ import (
 
 	"github.com/llm-d/fleet-llm-d/pkg/auth"
 )
+
+func TestTrustedGatewayAssertionCannotBeSpoofedOrForwardInternalHeaders(t *testing.T) {
+	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg := auth.Config{
+		Provider: auth.ProviderTrustedProxy, Enabled: true,
+		TrustedProxyKeys: map[string]ed25519.PublicKey{"gateway": publicKey},
+		TrustedIssuer:    "https://gateway.example", TrustedAudience: "llm-d-fleet",
+		AssertionMaxAge: 5 * time.Minute, RequireVerifiedMTLS: true,
+	}
+	payload, err := json.Marshal(map[string]interface{}{
+		"kid": "gateway", "sub": "user-1", "tenant": "tenant-a",
+		"roles": []string{auth.RoleTenant}, "iss": "https://gateway.example",
+		"aud": "llm-d-fleet", "iat": time.Now().Add(-time.Minute).Unix(),
+		"exp": time.Now().Add(time.Minute).Unix(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertion := base64.RawURLEncoding.EncodeToString(payload) + "." +
+		base64.RawURLEncoding.EncodeToString(ed25519.Sign(privateKey, payload))
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		identity := auth.GetIdentity(r)
+		if identity == nil || identity.Tenant != "tenant-a" {
+			t.Fatalf("identity = %#v", identity)
+		}
+		if r.Header.Get(auth.IdentityAssertionHeader) != "" || r.Header.Get("X-Fleet-Target-Cluster") != "" {
+			t.Fatal("trusted or routing authority leaked downstream")
+		}
+		w.WriteHeader(http.StatusOK)
+	})
+	handler := auth.AuthMiddleware(cfg, nil, inner)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/clusters", nil)
+	req.TLS = &tls.ConnectionState{VerifiedChains: [][]*x509.Certificate{{{}}}}
+	req.Header.Set(auth.IdentityAssertionHeader, assertion)
+	req.Header.Set("X-Fleet-Target-Cluster", "attacker")
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status = %d", rr.Code)
+	}
+
+	// A changed payload with the original signature must fail.
+	var changed map[string]interface{}
+	if err := json.Unmarshal(payload, &changed); err != nil {
+		t.Fatal(err)
+	}
+	changed["tenant"] = "tenant-b"
+	changedPayload, _ := json.Marshal(changed)
+	req = httptest.NewRequest(http.MethodGet, "/api/v1/clusters", nil)
+	req.TLS = &tls.ConnectionState{VerifiedChains: [][]*x509.Certificate{{{}}}}
+	req.Header.Set(auth.IdentityAssertionHeader, base64.RawURLEncoding.EncodeToString(changedPayload)+"."+base64.RawURLEncoding.EncodeToString(ed25519.Sign(privateKey, payload)))
+	rr = httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatalf("forged status = %d", rr.Code)
+	}
+}
 
 // newTestServer creates an httptest.Server with auth middleware wrapping
 // a simple mux that mirrors the fleet-controller API shape.

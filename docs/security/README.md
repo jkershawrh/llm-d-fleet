@@ -2,6 +2,7 @@
 
 These documents support engineering review of the OSS implementation:
 
+- the [portable threat model](threat-model.md);
 - dependency and CVE response procedures;
 - penetration-test planning;
 - evidence-collection guidance; and
