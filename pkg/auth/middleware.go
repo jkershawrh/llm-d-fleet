@@ -83,6 +83,7 @@ func AuthMiddleware(cfg Config, exempt []string, next http.Handler) http.Handler
 
 		// Store claims in context and call next handler.
 		ctx := WithClaims(r.Context(), claims)
+		ctx = WithIdentity(ctx, identityFromClaims(claims))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -102,32 +103,47 @@ func AuthorizationMiddleware(exempt []string, next http.Handler) http.Handler {
 			return
 		}
 
-		claims := GetClaims(r)
-		if claims == nil {
+		identity := GetIdentity(r)
+		if identity == nil {
+			identity = identityFromClaims(GetClaims(r))
+		}
+		if identity == nil {
 			next.ServeHTTP(w, r)
 			return
 		}
+		role := primaryRole(identity.Roles)
 
 		inferenceRequest := r.Method == http.MethodPost &&
 			(r.URL.Path == "/v1/chat/completions" || r.URL.Path == "/v1/completions")
-		if !CheckPermission(claims.Role, r.Method) && (claims.Role != RoleTenant || !inferenceRequest) {
+		if !CheckPermission(role, r.Method) && (role != RoleTenant || !inferenceRequest) {
 			writeAuthorizationError(w, "role is not allowed to perform this action")
 			slog.Info("fleet.security.rbac.denied",
-				"subject", claims.Subject, "role", claims.Role,
+				"subject", identity.Subject, "role", role,
 				"method", r.Method, "path", r.URL.Path, "reason", "method")
 			return
 		}
 
-		if claims.Role == RoleTenant && !inferenceRequest && !tenantRequestAllowed(claims.Subject, r.Method, r.URL.Path) {
+		if role == RoleTenant && !inferenceRequest && !tenantRequestAllowed(identity.Tenant, r.Method, r.URL.Path) {
 			writeAuthorizationError(w, "tenant is not allowed to access this resource")
 			slog.Info("fleet.security.rbac.denied",
-				"subject", claims.Subject, "role", claims.Role,
+				"subject", identity.Subject, "role", role,
 				"method", r.Method, "path", r.URL.Path, "reason", "tenant_scope")
 			return
 		}
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func primaryRole(roles []string) string {
+	for _, role := range []string{RoleAdmin, RoleOperator, RoleViewer, RoleTenant} {
+		for _, candidate := range roles {
+			if candidate == role {
+				return role
+			}
+		}
+	}
+	return ""
 }
 
 func tenantRequestAllowed(subject, method, path string) bool {

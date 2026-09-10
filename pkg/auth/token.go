@@ -14,6 +14,10 @@ import (
 type Claims struct {
 	Subject   string    `json:"sub"`  // user or service account
 	Role      string    `json:"role"` // admin, operator, viewer
+	Tenant    string    `json:"tenant,omitempty"`
+	Issuer    string    `json:"iss,omitempty"`
+	Audience  string    `json:"aud,omitempty"`
+	RequestID string    `json:"request_id,omitempty"`
 	IssuedAt  time.Time `json:"iat"`
 	ExpiresAt time.Time `json:"exp"`
 }
