@@ -54,10 +54,17 @@ func NewKubernetesConfigMapPublisherFromTokenFile(apiURL, namespace, name, token
 
 func (p *KubernetesConfigMapPublisher) Publish(ctx context.Context, files map[string][]byte) error {
 	data := make(map[string]string, len(files))
+	totalBytes := 0
 	for name, contents := range files {
 		data[name] = string(contents)
+		totalBytes += len(name) + len(contents)
 	}
-	body, err := json.Marshal(map[string]interface{}{"data": data})
+	// Kubernetes limits a ConfigMap object to 1 MiB. Leave headroom for
+	// metadata and JSON encoding rather than relying on a remote 413 response.
+	if totalBytes > 900*1024 {
+		return fmt.Errorf("Router endpoint files exceed the 900 KiB ConfigMap safety limit")
+	}
+	body, err := json.Marshal([]map[string]interface{}{{"op": "add", "path": "/data", "value": data}})
 	if err != nil {
 		return fmt.Errorf("marshal Router ConfigMap patch: %w", err)
 	}
@@ -66,7 +73,7 @@ func (p *KubernetesConfigMapPublisher) Publish(ctx context.Context, files map[st
 	if err != nil {
 		return err
 	}
-	req.Header.Set("Content-Type", "application/merge-patch+json")
+	req.Header.Set("Content-Type", "application/json-patch+json")
 	token := p.token
 	if p.tokenFile != "" {
 		contents, readErr := os.ReadFile(p.tokenFile)

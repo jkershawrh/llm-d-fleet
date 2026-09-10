@@ -90,6 +90,32 @@ func TestLLMDProviderOutputIsDeterministic(t *testing.T) {
 	}
 }
 
+func TestLLMDProviderPublishesEmptyTombstoneForRemovedModel(t *testing.T) {
+	dir := t.TempDir()
+	p, _ := NewLLMDProvider(LLMDProviderOptions{Directory: dir, RequireTLS: true})
+	clusters := []FleetClusterInfo{{ID: "a", Status: "Running", Authorized: true, EgressAddress: "https://a.example"}}
+	pools := []FleetPoolInfo{{Name: "pool", PhysicalModel: "exact-model", Clusters: []string{"a"}}}
+	if err := p.Sync(context.Background(), clusters, pools); err != nil {
+		t.Fatal(err)
+	}
+	var firstIndex llmdModelIndex
+	readJSON(t, filepath.Join(dir, "index.json"), &firstIndex)
+	filename := firstIndex.Models["exact-model"]
+	if err := p.Sync(context.Background(), clusters, nil); err != nil {
+		t.Fatal(err)
+	}
+	var index llmdModelIndex
+	readJSON(t, filepath.Join(dir, "index.json"), &index)
+	if len(index.Models) != 0 {
+		t.Fatalf("index = %#v", index.Models)
+	}
+	var tombstone llmdEndpointsFile
+	readJSON(t, filepath.Join(dir, filename), &tombstone)
+	if len(tombstone.Endpoints) != 0 {
+		t.Fatalf("removed model retained endpoints: %#v", tombstone.Endpoints)
+	}
+}
+
 func TestLLMDProviderUsesPortableTransportContract(t *testing.T) {
 	dir := t.TempDir()
 	p, _ := NewLLMDProvider(LLMDProviderOptions{Directory: dir, RequireTLS: true})

@@ -11,7 +11,11 @@ import (
 )
 
 func TestKubernetesConfigMapPublisherReplacesData(t *testing.T) {
-	var patch map[string]map[string]string
+	var patch []struct {
+		Operation string            `json:"op"`
+		Path      string            `json:"path"`
+		Value     map[string]string `json:"value"`
+	}
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPatch || r.URL.Path != "/api/v1/namespaces/fleet/configmaps/router-endpoints" {
 			t.Fatalf("unexpected request %s %s", r.Method, r.URL.Path)
@@ -19,7 +23,7 @@ func TestKubernetesConfigMapPublisherReplacesData(t *testing.T) {
 		if got := r.Header.Get("Authorization"); got != "Bearer token" {
 			t.Fatalf("authorization = %q", got)
 		}
-		if got := r.Header.Get("Content-Type"); got != "application/merge-patch+json" {
+		if got := r.Header.Get("Content-Type"); got != "application/json-patch+json" {
 			t.Fatalf("content type = %q", got)
 		}
 		if err := json.NewDecoder(r.Body).Decode(&patch); err != nil {
@@ -36,8 +40,21 @@ func TestKubernetesConfigMapPublisherReplacesData(t *testing.T) {
 	if err := publisher.Publish(context.Background(), map[string][]byte{"index.json": []byte("index\n")}); err != nil {
 		t.Fatal(err)
 	}
-	if got := patch["data"]["index.json"]; got != "index\n" {
+	if len(patch) != 1 || patch[0].Operation != "add" || patch[0].Path != "/data" {
+		t.Fatalf("patch = %#v", patch)
+	}
+	if got := patch[0].Value["index.json"]; got != "index\n" {
 		t.Fatalf("published index = %q", got)
+	}
+}
+
+func TestKubernetesConfigMapPublisherRejectsOversizedData(t *testing.T) {
+	publisher, err := NewKubernetesConfigMapPublisher("https://kubernetes.example", "fleet", "router-endpoints", "", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := publisher.Publish(context.Background(), map[string][]byte{"endpoints.json": make([]byte, 901*1024)}); err == nil {
+		t.Fatal("oversized ConfigMap data was accepted")
 	}
 }
 

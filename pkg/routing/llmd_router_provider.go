@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -55,7 +56,9 @@ type LLMDFilePublisher interface {
 // Keeping model candidate sets separate preserves the Router's current
 // single-model EPP assumption and prevents cross-model scoring.
 type LLMDProvider struct {
-	opts LLMDProviderOptions
+	opts      LLMDProviderOptions
+	mu        sync.Mutex
+	seenFiles map[string]struct{}
 }
 
 func NewLLMDProvider(opts LLMDProviderOptions) (*LLMDProvider, error) {
@@ -71,7 +74,7 @@ func NewLLMDProvider(opts LLMDProviderOptions) (*LLMDProvider, error) {
 	if opts.Now == nil {
 		opts.Now = time.Now
 	}
-	return &LLMDProvider{opts: opts}, nil
+	return &LLMDProvider{opts: opts, seenFiles: make(map[string]struct{})}, nil
 }
 
 func (p *LLMDProvider) Name() ProviderName { return ProviderLLMD }
@@ -81,6 +84,8 @@ func (p *LLMDProvider) Sync(ctx context.Context, clusters []FleetClusterInfo, po
 }
 
 func (p *LLMDProvider) sync(ctx context.Context, clusters []FleetClusterInfo, pools []FleetPoolInfo) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	byID := make(map[string]FleetClusterInfo, len(clusters))
 	for _, cluster := range clusters {
 		byID[cluster.ID] = cluster
@@ -124,7 +129,20 @@ func (p *LLMDProvider) sync(ctx context.Context, clusters []FleetClusterInfo, po
 			return err
 		}
 		files[filename] = data
+		p.seenFiles[filename] = struct{}{}
 		index.Models[model] = filename
+	}
+	// Keep an explicit empty tombstone for every previously published model
+	// file. EPP instances watch a fixed filename; merely removing that file can
+	// leave their last in-memory endpoint set active after a model is removed.
+	emptyEndpoints, err := marshalJSON(llmdEndpointsFile{Endpoints: []LLMDClusterEndpoint{}})
+	if err != nil {
+		return err
+	}
+	for filename := range p.seenFiles {
+		if _, active := files[filename]; !active {
+			files[filename] = emptyEndpoints
+		}
 	}
 	// Publish the index last so readers never observe a model file before its
 	// complete contents have been atomically installed.
