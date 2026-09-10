@@ -1,6 +1,10 @@
 package auth
 
 import (
+	"crypto/ed25519"
+	"crypto/rand"
+	"encoding/base64"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,6 +33,58 @@ func TestConfigFromEnv_NoVarsSet(t *testing.T) {
 	}
 	if cfg.TokenTTL != 24*time.Hour {
 		t.Errorf("expected default TokenTTL of 24h, got %v", cfg.TokenTTL)
+	}
+}
+
+func TestConfigFromEnv_TrustedProxy(t *testing.T) {
+	publicKey, _, err := ed25519.GenerateKey(rand.Reader)
+	if err != nil {
+		t.Fatal(err)
+	}
+	encoded, err := json.Marshal(map[string]string{
+		"gateway-1": "base64:" + base64.StdEncoding.EncodeToString(publicKey),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("FLEET_IDENTITY_PROVIDER", string(ProviderTrustedProxy))
+	t.Setenv("FLEET_AUTH_SECRET", "")
+	t.Setenv("FLEET_AUTH_SECRET_FILE", "")
+	t.Setenv("FLEET_TRUSTED_IDENTITY_KEYS_JSON", string(encoded))
+	t.Setenv("FLEET_TRUSTED_IDENTITY_ISSUER", "https://gateway.example")
+	t.Setenv("FLEET_TRUSTED_IDENTITY_AUDIENCE", "llm-d-fleet")
+	t.Setenv("FLEET_TRUSTED_IDENTITY_MAX_AGE", "2m")
+
+	cfg, err := ConfigFromEnv()
+	if err != nil {
+		t.Fatalf("ConfigFromEnv() error = %v", err)
+	}
+	if cfg.Provider != ProviderTrustedProxy || !cfg.Enabled || !cfg.RequireVerifiedMTLS {
+		t.Fatalf("config = %#v", cfg)
+	}
+	if cfg.AssertionMaxAge != 2*time.Minute || len(cfg.TrustedProxyKeys) != 1 {
+		t.Fatalf("trusted proxy config = %#v", cfg)
+	}
+}
+
+func TestConfigFromEnv_TrustedProxyRejectsIncompleteTrust(t *testing.T) {
+	t.Setenv("FLEET_IDENTITY_PROVIDER", string(ProviderTrustedProxy))
+	t.Setenv("FLEET_AUTH_SECRET", "")
+	t.Setenv("FLEET_AUTH_SECRET_FILE", "")
+	t.Setenv("FLEET_TRUSTED_IDENTITY_KEYS_JSON", `{}`)
+	t.Setenv("FLEET_TRUSTED_IDENTITY_ISSUER", "")
+	t.Setenv("FLEET_TRUSTED_IDENTITY_AUDIENCE", "")
+	if _, err := ConfigFromEnv(); err == nil {
+		t.Fatal("incomplete trusted proxy configuration must fail closed")
+	}
+}
+
+func TestConfigFromEnv_RejectsUnknownProvider(t *testing.T) {
+	t.Setenv("FLEET_IDENTITY_PROVIDER", "proprietary-gateway")
+	t.Setenv("FLEET_AUTH_SECRET", "")
+	t.Setenv("FLEET_AUTH_SECRET_FILE", "")
+	if _, err := ConfigFromEnv(); err == nil {
+		t.Fatal("unknown identity provider must be rejected")
 	}
 }
 

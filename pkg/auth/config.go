@@ -1,6 +1,9 @@
 package auth
 
 import (
+	"crypto/ed25519"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -9,10 +12,26 @@ import (
 
 // Config holds authentication configuration for the fleet controller.
 type Config struct {
-	Secret   string        // HMAC-SHA256 signing secret
-	TokenTTL time.Duration // token lifetime (default 24h)
-	Enabled  bool          // whether auth is enforced
+	Provider            ProviderName
+	Secret              string // HMAC-SHA256 signing secret
+	TokenTTL            time.Duration
+	Enabled             bool
+	TrustedProxyKeys    map[string]ed25519.PublicKey
+	TrustedIssuer       string
+	TrustedAudience     string
+	AssertionMaxAge     time.Duration
+	RequireVerifiedMTLS bool
 }
+
+type ProviderName string
+
+const (
+	ProviderDisabled     ProviderName = "disabled"
+	ProviderHMAC         ProviderName = "hmac"
+	ProviderTrustedProxy ProviderName = "trusted-proxy"
+)
+
+const IdentityAssertionHeader = "X-Fleet-Identity-Assertion"
 
 // MinSecretLength is the shortest HMAC signing secret accepted. Tokens are
 // signed with HMAC-SHA256, so a secret shorter than the 32-byte output adds
@@ -59,9 +78,83 @@ func ConfigFromEnv() (Config, error) {
 		ttl = parsed
 	}
 
-	return Config{
-		Secret:   secret,
-		TokenTTL: ttl,
-		Enabled:  secret != "",
-	}, nil
+	provider := ProviderName(strings.TrimSpace(os.Getenv("FLEET_IDENTITY_PROVIDER")))
+	if provider == "" {
+		if secret != "" {
+			provider = ProviderHMAC
+		} else {
+			provider = ProviderDisabled
+		}
+	}
+	cfg := Config{
+		Provider:            provider,
+		Secret:              secret,
+		TokenTTL:            ttl,
+		Enabled:             provider != ProviderDisabled,
+		AssertionMaxAge:     5 * time.Minute,
+		RequireVerifiedMTLS: true,
+	}
+	switch provider {
+	case ProviderDisabled:
+		if secret != "" {
+			return Config{}, fmt.Errorf("FLEET_IDENTITY_PROVIDER=disabled conflicts with configured HMAC secret")
+		}
+	case ProviderHMAC:
+		if secret == "" {
+			return Config{}, fmt.Errorf("FLEET_IDENTITY_PROVIDER=hmac requires FLEET_AUTH_SECRET or FLEET_AUTH_SECRET_FILE")
+		}
+	case ProviderTrustedProxy:
+		if secret != "" {
+			return Config{}, fmt.Errorf("trusted-proxy mode does not accept FLEET_AUTH_SECRET; configure public verification keys")
+		}
+		cfg.TrustedIssuer = strings.TrimSpace(os.Getenv("FLEET_TRUSTED_IDENTITY_ISSUER"))
+		cfg.TrustedAudience = strings.TrimSpace(os.Getenv("FLEET_TRUSTED_IDENTITY_AUDIENCE"))
+		keys, err := parseTrustedProxyKeys(os.Getenv("FLEET_TRUSTED_IDENTITY_KEYS_JSON"))
+		if err != nil {
+			return Config{}, err
+		}
+		cfg.TrustedProxyKeys = keys
+		if cfg.TrustedIssuer == "" || cfg.TrustedAudience == "" || len(keys) == 0 {
+			return Config{}, fmt.Errorf("trusted-proxy mode requires issuer, audience, and at least one Ed25519 public key")
+		}
+		if raw := strings.TrimSpace(os.Getenv("FLEET_TRUSTED_IDENTITY_MAX_AGE")); raw != "" {
+			cfg.AssertionMaxAge, err = time.ParseDuration(raw)
+			if err != nil || cfg.AssertionMaxAge <= 0 {
+				return Config{}, fmt.Errorf("FLEET_TRUSTED_IDENTITY_MAX_AGE %q must be a positive duration", raw)
+			}
+		}
+		if raw := strings.TrimSpace(os.Getenv("FLEET_TRUSTED_PROXY_REQUIRE_MTLS")); raw != "" {
+			switch raw {
+			case "true":
+				cfg.RequireVerifiedMTLS = true
+			case "false":
+				cfg.RequireVerifiedMTLS = false
+			default:
+				return Config{}, fmt.Errorf("FLEET_TRUSTED_PROXY_REQUIRE_MTLS must be true or false")
+			}
+		}
+	default:
+		return Config{}, fmt.Errorf("unsupported FLEET_IDENTITY_PROVIDER %q", provider)
+	}
+	return cfg, nil
+}
+
+func parseTrustedProxyKeys(raw string) (map[string]ed25519.PublicKey, error) {
+	encoded := map[string]string{}
+	if err := json.Unmarshal([]byte(raw), &encoded); err != nil {
+		return nil, fmt.Errorf("FLEET_TRUSTED_IDENTITY_KEYS_JSON must be a key-id to base64 public-key object: %w", err)
+	}
+	keys := make(map[string]ed25519.PublicKey, len(encoded))
+	for id, value := range encoded {
+		value = strings.TrimPrefix(strings.TrimSpace(value), "base64:")
+		decoded, err := base64.StdEncoding.DecodeString(value)
+		if err != nil || len(decoded) != ed25519.PublicKeySize {
+			return nil, fmt.Errorf("trusted identity key %q must be a base64-encoded %d-byte Ed25519 public key", id, ed25519.PublicKeySize)
+		}
+		if strings.TrimSpace(id) == "" {
+			return nil, fmt.Errorf("trusted identity key ID must not be empty")
+		}
+		keys[id] = ed25519.PublicKey(decoded)
+	}
+	return keys, nil
 }

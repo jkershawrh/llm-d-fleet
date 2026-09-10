@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 )
 
 // contextKey is the type used for storing values in request context.
@@ -45,6 +46,7 @@ func AuthMiddleware(cfg Config, exempt []string, next http.Handler) http.Handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// If auth is disabled, pass through.
 		if !cfg.Enabled {
+			stripInternalRequestHeaders(r.Header)
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -55,6 +57,21 @@ func AuthMiddleware(cfg Config, exempt []string, next http.Handler) http.Handler
 			return
 		}
 
+		if cfg.Provider == ProviderTrustedProxy {
+			identity, err := validateTrustedProxyAssertion(cfg, r, time.Now())
+			stripInternalRequestHeaders(r.Header)
+			if err != nil {
+				writeAuthError(w, err.Error())
+				slog.Info("fleet.security.auth.failed", "remote", r.RemoteAddr,
+					"reason", "trusted_identity_rejected", "path", r.URL.Path)
+				return
+			}
+			ctx := WithIdentity(r.Context(), identity)
+			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		}
+
+		stripInternalRequestHeaders(r.Header)
 		// Extract bearer token from Authorization header.
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
@@ -86,6 +103,23 @@ func AuthMiddleware(cfg Config, exempt []string, next http.Handler) http.Handler
 		ctx = WithIdentity(ctx, identityFromClaims(claims))
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+var internalRequestHeaders = []string{
+	IdentityAssertionHeader,
+	"X-Fleet-Actor",
+	"X-Fleet-Tenant",
+	"X-Fleet-Target-Cluster",
+	"X-Fleet-Routing-Reason",
+	"X-Fleet-Data-Plane",
+	"X-Fleet-Router-Upstream",
+	"X-Gateway-Destination-Endpoint",
+}
+
+func stripInternalRequestHeaders(header http.Header) {
+	for _, name := range internalRequestHeaders {
+		header.Del(name)
+	}
 }
 
 // AuthorizationMiddleware enforces role-based access for authenticated
