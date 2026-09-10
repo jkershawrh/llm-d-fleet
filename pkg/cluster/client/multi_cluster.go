@@ -34,6 +34,13 @@ type ResourceApplier interface {
 	ApplyResource(ctx context.Context, clusterID string, resource []byte) error
 }
 
+// ResourceReader is an optional capability used to ingest status from a
+// lifecycle owner after applying its resource. apiPath must be an absolute
+// Kubernetes API path assembled from operator-owned resource identity.
+type ResourceReader interface {
+	GetResource(ctx context.Context, clusterID, apiPath string) ([]byte, error)
+}
+
 // clusterRegistry is the shared, package-level registry used by all
 // defaultMultiClusterClient instances so that clusters registered through
 // one client instance are visible from another.

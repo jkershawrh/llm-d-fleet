@@ -202,8 +202,9 @@ type resourceMeta struct {
 	} `json:"metadata"`
 }
 
-// ApplyResource PUTs a JSON-encoded Kubernetes resource to the cluster's API
-// server. The resource must include apiVersion, kind, and metadata.name fields.
+// ApplyResource reconciles a JSON-encoded Kubernetes resource using
+// server-side apply. The fixed field manager and operator-owned resource
+// identity make create and update idempotent without copying resourceVersion.
 func (c *KubeconfigClusterClient) ApplyResource(ctx context.Context, clusterID string, resource []byte) error {
 	c.mu.RLock()
 	conn, ok := c.clusters[clusterID]
@@ -222,13 +223,13 @@ func (c *KubeconfigClusterClient) ApplyResource(ctx context.Context, clusterID s
 	}
 
 	apiPath := buildAPIPath(meta)
-	url := conn.APIServer + apiPath
+	url := conn.APIServer + apiPath + "?fieldManager=llm-d-fleet&force=false"
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPut, url, bytes.NewReader(resource))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, url, bytes.NewReader(resource))
 	if err != nil {
 		return fmt.Errorf("creating request: %w", err)
 	}
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/apply-patch+yaml")
 	if conn.Token != "" {
 		req.Header.Set("Authorization", "Bearer "+conn.Token)
 	}

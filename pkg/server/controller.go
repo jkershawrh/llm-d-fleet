@@ -401,6 +401,34 @@ func (fc *FleetController) configureServingActuator(namespace string) {
 		}
 		return nil
 	})
+	fc.Reconciler.SetActualClusterObserver(func(ctx context.Context, pool v1alpha1.FleetInferencePoolSpec, desired []string) ([]string, error) {
+		if pool.Serving.EffectiveTarget() != v1alpha1.ServingTargetKServeLLMInferenceService {
+			return nil, nil
+		}
+		reader, ok := fc.ClusterClient.(client.ResourceReader)
+		if !ok {
+			return nil, fmt.Errorf("KServe serving target requires a cluster client with resource status capability")
+		}
+		return observeKServeClusters(ctx, reader, renderer, pool.Model.Name, desired)
+	})
+}
+
+func observeKServeClusters(ctx context.Context, reader client.ResourceReader, renderer serving.KServeRenderer, model string, desired []string) ([]string, error) {
+	actual := make([]string, 0, len(desired))
+	for _, clusterID := range desired {
+		raw, err := reader.GetResource(ctx, clusterID, renderer.ResourcePath(model))
+		if err != nil {
+			return actual, fmt.Errorf("read KServe LLMInferenceService from %s: %w", clusterID, err)
+		}
+		resource, err := serving.ParseKServeResource(raw)
+		if err != nil {
+			return actual, fmt.Errorf("read KServe LLMInferenceService from %s: %w", clusterID, err)
+		}
+		if resource.ObservedReady() {
+			actual = append(actual, clusterID)
+		}
+	}
+	return actual, nil
 }
 
 // configureReconcilerOnChange wires placement side effects through the

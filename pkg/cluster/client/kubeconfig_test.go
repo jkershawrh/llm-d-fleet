@@ -132,9 +132,11 @@ func TestApplyResource(t *testing.T) {
 	var receivedContentType string
 	var receivedAuth string
 	var receivedMethod string
+	var receivedQuery string
 
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		receivedMethod = r.Method
+		receivedQuery = r.URL.RawQuery
 		receivedContentType = r.Header.Get("Content-Type")
 		receivedAuth = r.Header.Get("Authorization")
 		// Read the request body for verification.
@@ -180,11 +182,14 @@ func TestApplyResource(t *testing.T) {
 		t.Fatalf("ApplyResource: unexpected error: %v", err)
 	}
 
-	if receivedMethod != http.MethodPut {
-		t.Errorf("expected PUT method, got %q", receivedMethod)
+	if receivedMethod != http.MethodPatch {
+		t.Errorf("expected PATCH method, got %q", receivedMethod)
 	}
-	if receivedContentType != "application/json" {
-		t.Errorf("expected Content-Type application/json, got %q", receivedContentType)
+	if receivedContentType != "application/apply-patch+yaml" {
+		t.Errorf("expected server-side apply Content-Type, got %q", receivedContentType)
+	}
+	if receivedQuery != "fieldManager=llm-d-fleet&force=false" {
+		t.Errorf("unexpected apply query %q", receivedQuery)
 	}
 	if receivedAuth != "Bearer test-token-123" {
 		t.Errorf("expected Authorization 'Bearer test-token-123', got %q", receivedAuth)
