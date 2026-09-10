@@ -28,6 +28,9 @@ documents disagree, the current-contract set below is authoritative.
 
 ## Upstream and product review
 
+- [Review readiness and external gates](upstream/review-readiness.md) — one
+  checklist separating implemented evidence from deferred environment,
+  upstream-release, independent-review, and product-certification work.
 - [Reviewer evidence package](upstream/reviewer-evidence-package.md)
 - [Fleet eligibility and Router design](upstream/fleet-eligibility-router-design.md)
 - [Router release qualification](upstream/router-release-qualification.md) —

@@ -46,6 +46,12 @@ material and retained historical references.
 > physical topology, and operational evidence are maintained outside this
 > public source tree.
 
+The published release remains `v0.3.0`. Current `main` is a post-`v0.3.0`
+review candidate containing the trusted-gateway identity boundary, KServe
+`v1alpha2` qualification work, and stricter Router withdrawal behavior. These
+changes are not a new release or production certification. Review
+[candidate readiness and remaining gates](docs/upstream/review-readiness.md).
+
 See the [OSS and downstream production boundary](docs/community/repository-boundary.md)
 before adding deployment or certification material.
 

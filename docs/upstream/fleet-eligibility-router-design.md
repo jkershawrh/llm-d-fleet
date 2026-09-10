@@ -13,11 +13,18 @@ control. No adapter can add a provider rejected by fleet policy.
 
 ## Initial discovery contract
 
-The reference adapter writes one file per exact model using
-`multicluster-file-discovery`, including separate routing and metrics hosts.
-Files are deterministic and atomically replaced; an index is published only
-after all model files succeed. This respects the current upstream guidance that
-a hub EPP candidate set is homogeneous by model.
+The reference adapter writes one file per exact model for the DNS- and
+TLS-aware `multicluster-file-discovery` contract currently available on
+upstream main, including separate routing and metrics hosts. Files are
+deterministic and atomically replaced; an index is published only after all
+model files succeed. This respects the current upstream guidance that a hub
+EPP candidate set is homogeneous by model.
+
+This is beta integration evidence, not released Router qualification. Router
+v0.10.0 file discovery accepts literal IPv4 endpoints and cannot carry the DNS
+authority/SNI needed for verified cross-cluster TLS. The adapter must remain
+beta until a compatible upstream contract is released and tested; see
+[`router-release-qualification.md`](router-release-qualification.md).
 
 This file is an implementation bridge, not the desired permanent API. The
 upstream design request is a native discovery contract that can carry stable

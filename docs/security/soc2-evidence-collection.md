@@ -18,7 +18,7 @@
 | Criteria | Requirement | fleet-llm-d Control | Evidence Source | Collection Method |
 |----------|-------------|---------------------|-----------------|-------------------|
 | CC6.1 | Logical access security | RBAC with 4 ClusterRoles: controller, agent, viewer, tenant-admin | `deploy/kustomize/base/rbac.yaml` | Quarterly export of ClusterRole/ClusterRoleBinding definitions |
-| CC6.1 | Authentication controls | HMAC-SHA256 bearer tokens with configurable TTL | `pkg/auth/token.go` | Monthly review of token TTL configuration and rotation logs |
+| CC6.1 | Authentication controls | Short-lived Ed25519 assertions from a configured trusted gateway, bound to issuer, audience, time, and verified mTLS; HMAC tokens are compatibility/development only | `pkg/auth/trusted_proxy.go`, `pkg/auth/token.go` | Monthly review of gateway key rotation, assertion lifetime, trust configuration, and any enabled compatibility-token policy |
 | CC6.2 | Access provisioning | Admission webhook validates CRD mutations by role | `pkg/controller/webhook.go` | Continuous: auth failure events from `FleetRecorder.RecordAuthFailure` |
 | CC6.3 | Access removal | Cluster deregistration, tenant deletion | `DELETE /api/v1/clusters/{id}`, tenant API | Quarterly access review reports |
 | CC6.6 | Threats to system boundaries | Network policies: default-deny-all, per-component allow | `deploy/kustomize/base/network-policies.yaml` | Monthly NetworkPolicy audit |

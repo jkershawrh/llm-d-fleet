@@ -57,11 +57,11 @@ fleet-llm-d runs on OpenShift/Kubernetes and cloud infrastructure. Controls are 
 
 | Control | Description | Implementation | Responsibility |
 |---------|-------------|----------------|----------------|
-| IA-2 | User identification/authentication | HMAC-SHA256 bearer tokens via `pkg/auth/token.go` with Subject, Role, IssuedAt, ExpiresAt claims. | fleet-llm-d |
+| IA-2 | User identification/authentication | Short-lived Ed25519 assertions from a configured trusted gateway after issuer, audience, time-window, signature, and verified-mTLS checks (`pkg/auth/trusted_proxy.go`). HMAC bearer tokens remain an explicit compatibility/development provider (`pkg/auth/token.go`). | fleet-llm-d + gateway |
 | IA-3 | Device identification/authentication | Fleet-agent identification via cluster registration (`POST /api/v1/clusters`). | fleet-llm-d |
 | IA-4 | Identifier management | Service accounts per component (fleet-controller, fleet-agent). Tenant IDs in TenantProfile CRD. | fleet-llm-d + platform |
-| IA-5 | Authenticator management | Token TTL configurable via `fleetctl login`. `--tls-ca` for custom CA bundles. | fleet-llm-d |
-| IA-8 | Identification/auth for non-org users | -- | Gap: no federated identity or SSO integration |
+| IA-5 | Authenticator management | Trusted gateway public keys and assertion lifetime are operator-managed; compatibility token TTL is configurable via `fleetctl login`; `--tls-ca` supplies custom CA bundles. | fleet-llm-d + platform |
+| IA-8 | Identification/auth for non-org users | External OIDC/SSO belongs to the selected Model/API Gateway, which maps authenticated identities into the signed internal assertion contract. | Delegated to gateway/operator |
 | IA-9 | Service identification/authentication | -- | Gap: fleet-agent (Rust) does not yet use mTLS for controller communication |
 
 ## SC -- System and Communications Protection
@@ -70,8 +70,8 @@ fleet-llm-d runs on OpenShift/Kubernetes and cloud infrastructure. Controls are 
 |---------|-------------|----------------|----------------|
 | SC-7 | Boundary protection | NetworkPolicy default-deny-all. Namespace isolation. Ingress restrictions. | Shared |
 | SC-8 | Transmission confidentiality | Controller HTTPS via `--tls-cert`/`--tls-key`; `fleetctl` via `--tls-ca`; agent supports a pinned CA through `--tls-ca-cert`; production startup requires PostgreSQL `sslmode=verify-full` and HTTPS Praxis/ledger endpoints. | Partial -- see SC-8 gap |
-| SC-12 | Cryptographic key management | HMAC secret for token signing. TLS certificate management. | Delegated to platform |
-| SC-13 | Cryptographic protection | SHA-256 for token HMAC, ledger hash chains, content hashing. | fleet-llm-d |
+| SC-12 | Cryptographic key management | Ed25519 gateway verification keys, compatibility HMAC secrets, and TLS certificates are supplied and rotated by the operator/platform. | Delegated to platform |
+| SC-13 | Cryptographic protection | Ed25519 gateway assertions, optional HMAC compatibility tokens, SHA-256 ledger hash chains, and content hashing. | fleet-llm-d |
 | SC-28 | Protection of information at rest | -- | Delegated to platform (dm-crypt/LUKS, cloud encryption) |
 
 **SC-8 Gap**: TLS is configurable rather than automatically provisioned for
@@ -108,7 +108,8 @@ These controls are the responsibility of the underlying platform (OpenShift/Kube
 
 - `deploy/kustomize/base/rbac.yaml` -- RBAC definitions
 - `deploy/kustomize/base/network-policies.yaml` -- network policies
-- `pkg/auth/token.go` -- authentication implementation
+- `pkg/auth/trusted_proxy.go` -- trusted gateway assertion verification
+- `pkg/auth/token.go` -- compatibility/development token implementation
 - `pkg/ledger/fleet_recorder.go` -- audit event recording
 - `api/crds/` -- CRD schema definitions
 - `.github/workflows/security.yaml` -- vulnerability scanning

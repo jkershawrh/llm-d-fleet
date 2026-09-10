@@ -27,7 +27,7 @@ assert that such an engagement has occurred.
 
 ### Test Categories
 
-#### 1. API Fuzzing (15 REST Endpoints + gRPC)
+#### 1. API Fuzzing (Registered REST Endpoints + gRPC)
 
 Target all endpoints registered in `pkg/server/routes.go`:
 

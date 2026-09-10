@@ -48,11 +48,20 @@ controller performs admission and forwards the request to the configured
 Praxis endpoint. Praxis and llm-d Router adapters are optional; neither is
 embedded in the core images.
 
-Praxis is the default and currently validated adapter. Select the upstream-
-native beta with `--set controller.routingProvider=llm-d-router`; mount the
-generated endpoint directory into one model-specific hub EPP and configure its
-`multicluster-file-discovery` plugin with `watchFile: true`. Use one hub EPP per
-exact model until upstream defines a multi-model discovery/filter contract.
+Praxis is the default and currently validated adapter. The `llm-d-router`
+provider is a beta integration contract, not a released end-to-end installation
+path. The adapter generates the DNS- and TLS-aware watched files expected by
+the upstream-main `multicluster-file-discovery` work, but released Router
+v0.10.0 file discovery accepts literal IPv4 endpoints and cannot preserve the
+DNS authority/SNI required for verified cross-cluster Route traffic. Do not
+select this provider for a released Router deployment until a compatible
+discovery contract is available and qualified. See the
+[Router release qualification](../upstream/router-release-qualification.md).
+
+For development against a compatible upstream-main build, mount the generated
+endpoint directory into one model-specific hub EPP and enable watched-file
+reload. Use one hub EPP per exact model until upstream defines a multi-model
+discovery/filter contract.
 
 The inference gateway never assumes physical cluster names. Configure the
 authoritative exact-model provider set with `FLEET_MODEL_PROVIDERS_JSON`, for
