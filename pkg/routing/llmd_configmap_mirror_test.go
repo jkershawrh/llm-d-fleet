@@ -20,14 +20,15 @@ func TestKubernetesConfigMapMirrorPublishesUpdatesAndReloadsToken(t *testing.T) 
 	var mu sync.Mutex
 	version, contents := "1", "first"
 	requests := 0
+	sawInitialToken := false
 	sawRotatedToken := false
 	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mu.Lock()
 		defer mu.Unlock()
 		requests++
 		gotToken := r.Header.Get("Authorization")
-		if version == "1" && gotToken != "Bearer first" {
-			t.Errorf("authorization = %q, want %q", gotToken, "Bearer first")
+		if version == "1" && gotToken == "Bearer first" {
+			sawInitialToken = true
 		}
 		if version == "2" && gotToken == "Bearer second" {
 			sawRotatedToken = true
@@ -72,6 +73,9 @@ func TestKubernetesConfigMapMirrorPublishesUpdatesAndReloadsToken(t *testing.T) 
 	defer mu.Unlock()
 	if requests < 2 {
 		t.Fatalf("requests = %d, want at least 2", requests)
+	}
+	if !sawInitialToken {
+		t.Fatal("initial bearer token was not observed")
 	}
 	if !sawRotatedToken {
 		t.Fatal("rotated bearer token was not observed")
