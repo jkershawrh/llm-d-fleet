@@ -30,6 +30,8 @@ documents disagree, the current-contract set below is authoritative.
 
 - [Reviewer evidence package](upstream/reviewer-evidence-package.md)
 - [Fleet eligibility and Router design](upstream/fleet-eligibility-router-design.md)
+- [Router release qualification](upstream/router-release-qualification.md) —
+  released discovery compatibility, local evidence, and upstream blocker.
 - [Multi-cluster conformance report](upstream/multicluster-product-conformance-2026-08-31.md)
 - [Independent clean-room protocol](upstream/clean-room-reproduction.md)
 - [Focused RFC discussion](upstream/rfc-discussion.md)

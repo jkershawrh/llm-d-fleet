@@ -15,10 +15,14 @@ so this profile retains random selection within the fleet-qualified provider
 set. Queue and KV scorers must not be enabled until cluster-local EPPs publish
 those aggregates; missing load signals are not replaced with synthetic data.
 
-The beta uses the qualified upstream `main` EPP build by immutable digest
-because `multicluster-file-discovery` landed after the v0.10.0 release. Update
-the digest only through a new qualification run; do not promote this overlay
-to a released Router channel until a released image includes the plugin.
+The beta uses an upstream `main` EPP build by immutable digest because the
+released v0.10.0 `file-discovery` contract accepts only literal IPv4 addresses
+and cannot preserve the DNS authority/SNI required by verified cross-cluster
+TLS endpoints. The pinned digest remains retrievable, but has not completed a
+new live qualification in this release. Update it only through a new
+qualification run; do not promote this overlay to a released Router channel
+until a released discovery API carries the required TLS identity. See
+[`docs/upstream/router-release-qualification.md`](../../docs/upstream/router-release-qualification.md).
 
 ```sh
 helm upgrade --install fleet-router-cpu \

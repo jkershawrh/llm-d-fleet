@@ -165,6 +165,11 @@ KServe-published endpoint. This behavior is unit-qualified but has not yet
 completed independent live-cluster conformance; see the
 [KServe qualification contract](docs/architecture/kserve-qualification.md).
 
+Router integration remains beta: released Router v0.10.0 file discovery is
+IPv4-only and cannot preserve DNS authority/SNI for verified cross-cluster TLS.
+The exact [release qualification gap](docs/upstream/router-release-qualification.md)
+is documented rather than represented as completed product proof.
+
 The optional `grid-signals-publisher` converts a cluster-local Prometheus or
 active provider-health source into a small, pool-level contract over strict
 mTLS. It discards source labels and never exports pod, container, instance, or
