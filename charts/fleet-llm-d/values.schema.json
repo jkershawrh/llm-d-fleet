@@ -27,6 +27,28 @@
         {"properties": {"existingConfigMap": {"type": "string", "minLength": 1}}}
       ]
     },
+    "auth": {
+      "type": "object",
+      "required": ["enabled", "provider", "existingSecret", "secretKey", "trustedProxy"],
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "provider": {"type": "string", "enum": ["disabled", "hmac", "trusted-proxy"]},
+        "existingSecret": {"type": "string"},
+        "secretKey": {"type": "string", "minLength": 1},
+        "trustedProxy": {
+          "type": "object",
+          "required": ["existingSecret", "keysKey", "issuer", "audience", "maxAge", "requireMTLS"],
+          "properties": {
+            "existingSecret": {"type": "string"},
+            "keysKey": {"type": "string", "minLength": 1},
+            "issuer": {"type": "string"},
+            "audience": {"type": "string", "minLength": 1},
+            "maxAge": {"type": "string", "minLength": 2},
+            "requireMTLS": {"type": "boolean"}
+          }
+        }
+      }
+    },
     "controller": {
       "type": "object",
       "required": ["enabled", "replicaCount", "image", "mode", "allowOperatorJSONIntents", "ports", "service", "serviceAccount", "resources"],

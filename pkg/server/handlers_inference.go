@@ -76,7 +76,17 @@ func (fc *FleetController) handleInference(w http.ResponseWriter, r *http.Reques
 	requestID := requestID(r)
 	modelClass := fc.requestedModelClass(envelope.Model)
 	tenantID := envelope.TenantID
-	if claims := auth.GetClaims(r); claims != nil {
+	if identity := auth.GetIdentity(r); identity != nil {
+		identityTenant := identity.Tenant
+		if identityTenant == "" {
+			identityTenant = identity.Subject
+		}
+		if identity.HasRole(auth.RoleTenant) || tenantID == "" {
+			tenantID = identityTenant
+		}
+	} else if claims := auth.GetClaims(r); claims != nil {
+		// Compatibility for tests and internal callers that directly install
+		// legacy claims without traversing AuthMiddleware.
 		if claims.Role == auth.RoleTenant || tenantID == "" {
 			tenantID = claims.Subject
 		}

@@ -48,6 +48,9 @@ func OperatorJSONIntentsEnabled(flagValue bool) bool {
 // standalone development profile. Never derive audit identity from a
 // client-controlled header.
 func RequestActor(r *http.Request) string {
+	if identity := auth.GetIdentity(r); identity != nil && strings.TrimSpace(identity.Subject) != "" {
+		return identity.Subject
+	}
 	if claims := auth.GetClaims(r); claims != nil && strings.TrimSpace(claims.Subject) != "" {
 		return claims.Subject
 	}

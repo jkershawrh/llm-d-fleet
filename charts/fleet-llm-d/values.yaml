@@ -39,11 +39,19 @@ rbac:
   create: true
 
 auth:
-  # This is compatibility HMAC authentication, not production OIDC/workload
-  # identity. It remains opt-in until gateway/agent token presentation exists.
+  # disabled, hmac, or trusted-proxy. `enabled` is retained for chart
+  # compatibility and must be true for hmac or trusted-proxy.
   enabled: false
+  provider: disabled
   existingSecret: fleet-auth
   secretKey: FLEET_AUTH_SECRET
+  trustedProxy:
+    existingSecret: fleet-trusted-identity
+    keysKey: keys.json
+    issuer: ""
+    audience: llm-d-fleet
+    maxAge: 5m
+    requireMTLS: true
 
 tls:
   enabled: false

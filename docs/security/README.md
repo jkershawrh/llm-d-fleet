@@ -16,3 +16,8 @@ The release-level security evidence is limited to the tests, scans, signed
 artifacts, SBOMs, and provenance recorded in the
 [reviewer evidence package](../upstream/reviewer-evidence-package.md). A formal
 product threat-model review remains open.
+
+The [trusted identity boundary](../architecture/trusted-identity-boundary.md)
+defines the portable integration with an external Model/API Gateway. It is an
+implemented contract with unit tests, not evidence that any particular product
+gateway or production deployment has completed conformance testing.

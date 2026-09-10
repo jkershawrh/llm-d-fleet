@@ -408,6 +408,17 @@ func TestRequestActorUsesVerifiedClaimsAndIgnoresSpoofedHeader(t *testing.T) {
 	}
 }
 
+func TestRequestActorUsesNormalizedTrustedIdentity(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/api/v2/operations/op-1/approve", nil)
+	req.Header.Set("X-Fleet-Actor", "spoofed-client")
+	req = req.WithContext(auth.WithIdentity(req.Context(), &auth.Identity{
+		Subject: "spiffe://gateway.example/user-1", Method: auth.MethodTrustedProxy,
+	}))
+	if got := server.RequestActor(req); got != "spiffe://gateway.example/user-1" {
+		t.Fatalf("RequestActor() = %q", got)
+	}
+}
+
 // routeExists sends a request to the mux and returns true when the mux
 // dispatches it to a real handler (i.e. status != 404 && status != 405).
 func routeExists(mux *http.ServeMux, method, path string) bool {

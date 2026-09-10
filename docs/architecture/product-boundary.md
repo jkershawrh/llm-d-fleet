@@ -9,6 +9,13 @@ It does not replace KServe model lifecycle, llm-d Router/EPP scoring, KEDA or
 HPA actuation, WVA heterogeneous-variant optimization, model servers, or a
 cross-cluster network product.
 
+An external Model/API Gateway owns customer identity, OAuth/OIDC, API keys,
+subscriptions, external RBAC, and commercial rate plans. llm-d-fleet consumes
+a verified normalized identity and owns only fleet admission, placement
+entitlements, internal authorization, and fleet quota enforcement. The
+portable contract is documented in
+[trusted-identity-boundary.md](trusted-identity-boundary.md).
+
 ## Routing adapters
 
 One adapter is authoritative per deployment:

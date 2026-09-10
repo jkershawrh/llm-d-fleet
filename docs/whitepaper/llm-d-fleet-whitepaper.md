@@ -98,6 +98,14 @@ returns routing and exact-model metadata. If no compatible provider remains,
 it returns structured `503 no_compatible_capacity`; it does not silently
 substitute a different physical model.
 
+Customer authentication, OAuth/OIDC, API-key lifecycle, subscriptions, and
+external rate plans belong to an upstream Model/API Gateway. Fleet's portable
+trusted-proxy boundary verifies a short-lived Ed25519 assertion over mTLS and
+normalizes subject, tenant, roles, entitlements, issuer, audience, and request
+identity. Fleet then applies admission and placement policy; the assertion
+cannot select a cluster, data plane, destination, or incompatible model. The
+existing HMAC bearer-token path remains compatibility/development behavior.
+
 ## 4. Adapter model
 
 The routing-provider interface receives normalized state including cluster and

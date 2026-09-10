@@ -196,10 +196,15 @@ func clientAddrKey(r *http.Request, trustProxyHeaders bool) string {
 	return "ip:" + addr
 }
 
-// subjectKey derives a rate-limit key from verified token claims, so each
+// subjectKey derives a rate-limit key from verified identity, so each
 // authenticated principal gets its own budget regardless of source address.
 // It falls back to the client address when no claims are present.
 func subjectKey(r *http.Request, trustProxyHeaders bool) string {
+	if identity := GetIdentity(r); identity != nil && identity.Subject != "" {
+		return "sub:" + identity.Subject
+	}
+	// Preserve compatibility for internal callers that still install legacy
+	// claims directly rather than passing through AuthMiddleware.
 	if claims := GetClaims(r); claims != nil && claims.Subject != "" {
 		return "sub:" + claims.Subject
 	}

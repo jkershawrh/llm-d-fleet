@@ -43,6 +43,7 @@ spec:
           securityContext:
             {{- toYaml .Values.containerSecurityContext | nindent 12 }}
           args:
+            - --identity-provider={{ ternary .Values.auth.provider "disabled" .Values.auth.enabled }}
             - --port={{ .Values.controller.ports.api }}
             - --metrics-port={{ .Values.controller.ports.metrics }}
             - --mode={{ .Values.controller.mode }}
@@ -86,12 +87,29 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             {{- if .Values.auth.enabled }}
+            {{- if eq .Values.auth.provider "hmac" }}
             - name: FLEET_AUTH_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ required "auth.existingSecret is required when auth is enabled" .Values.auth.existingSecret }}
                   key: {{ .Values.auth.secretKey }}
                   optional: false
+            {{- else if eq .Values.auth.provider "trusted-proxy" }}
+            - name: FLEET_TRUSTED_IDENTITY_KEYS_JSON
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "auth.trustedProxy.existingSecret is required for trusted-proxy" .Values.auth.trustedProxy.existingSecret }}
+                  key: {{ .Values.auth.trustedProxy.keysKey }}
+                  optional: false
+            - name: FLEET_TRUSTED_IDENTITY_ISSUER
+              value: {{ required "auth.trustedProxy.issuer is required for trusted-proxy" .Values.auth.trustedProxy.issuer | quote }}
+            - name: FLEET_TRUSTED_IDENTITY_AUDIENCE
+              value: {{ required "auth.trustedProxy.audience is required for trusted-proxy" .Values.auth.trustedProxy.audience | quote }}
+            - name: FLEET_TRUSTED_IDENTITY_MAX_AGE
+              value: {{ .Values.auth.trustedProxy.maxAge | quote }}
+            - name: FLEET_TRUSTED_PROXY_REQUIRE_MTLS
+              value: {{ .Values.auth.trustedProxy.requireMTLS | quote }}
+            {{- end }}
             {{- end }}
             {{- if .Values.externalDependencies.gcl.enabled }}
             - name: GCL_DECISION_SIGNING_KEY

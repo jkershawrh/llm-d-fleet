@@ -1164,8 +1164,12 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
-      description: Optional Bearer token for authenticated access
+      bearerFormat: fleet-hmac-compatibility
+      description: >-
+        Compatibility bearer token used when the hmac identity provider is
+        selected. In trusted-proxy mode an authenticated upstream gateway sends
+        a short-lived signed identity assertion; clients must never set fleet
+        identity or internal routing headers directly.
 
   # ---------- reusable parameters ----------
   parameters:

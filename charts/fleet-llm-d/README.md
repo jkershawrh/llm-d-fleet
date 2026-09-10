@@ -101,8 +101,11 @@ Agent Services remain internal, and Praxis is an external dependency.
   an existing Secret. No password appears in values or rendered arguments.
 - The event publisher and ModelPlane adapter require explicit endpoints.
 - Semantic-classifier and platform-metrics URLs are only added when supplied.
-- Authentication never generates a Secret. The current HMAC mechanism is a
-  compatibility/development control, not production OIDC or workload identity;
-  enabling it requires the named existing Secret.
+- Authentication never generates a Secret. `auth.provider=hmac` is the
+  compatibility/development path and requires the named existing Secret.
+  `auth.provider=trusted-proxy` consumes an operator-managed Secret containing
+  only the trusted gateway's Ed25519 public-key JSON plus explicit issuer and
+  audience values. OAuth/OIDC and API-key lifecycle remain gateway-owned. See
+  `docs/architecture/trusted-identity-boundary.md` for the wire contract.
 
 Run `helm lint charts/fleet-llm-d` and template each profile before promotion.

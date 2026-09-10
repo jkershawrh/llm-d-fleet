@@ -252,8 +252,15 @@ Six API endpoints: `/api/v1/cost/pricing`, `/api/v1/cost/tokenomics/{model}`, `/
 
 ## Security
 
-- **Authentication**: HMAC-SHA256 bearer tokens with role-based access (admin, operator, viewer, tenant)
-- **Rate Limiting**: Per-IP and per-tenant token bucket middleware
+- **Identity boundary**: `trusted-proxy` verifies short-lived Ed25519 identity
+  assertions from an authenticated Model/API Gateway; HMAC bearer tokens remain
+  available for compatibility and development.
+- **Ownership**: The external gateway owns OAuth/OIDC, API keys,
+  subscriptions, external RBAC, and customer-facing rate plans. Fleet owns
+  tenant admission, placement entitlements, and internal fleet quotas.
+- **Rate Limiting**: Per-source and verified-principal token buckets protect
+  the fleet API; these are operational safeguards, not a replacement for
+  product gateway plans.
 - **TLS**: Optional HTTPS via `--tls-cert` and `--tls-key` flags
 - **RBAC**: Least-privilege controller and agent roles plus fleet-viewer and fleet-tenant-admin roles
 - **Network Policies**: Default-deny with explicit allowlists per component
@@ -262,6 +269,9 @@ Six API endpoints: `/api/v1/cost/pricing`, `/api/v1/cost/tokenomics/{model}`, `/
 - **Audit Trail**: When an external immutable ledger is configured, governed
   mutations fail closed on recording errors; the OSS core does not claim that
   every authentication or RBAC event is durably recorded by default.
+
+See the [trusted identity boundary](docs/architecture/trusted-identity-boundary.md)
+for configuration, assertion fields, mTLS requirements, and header authority.
 
 ## Quick Start
 
